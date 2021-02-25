@@ -1,0 +1,296 @@
+.TH KINDLETOOL 1 05/30/18 Linux KindleTool
+.SH NAME
+KindleTool \- creates/extracts Kindle updates and more.
+.SH SYNOPSIS
+.B kindletool
+.RB < create | convert | extract | info | md | dm | version | help >
+.RI [ options ]
+.SH DESCRIPTION
+KindleTool will help you, among other things, create, convert, mangle or extract Kindle update packages.
+.SH OPTIONS
+.SS create
+.IR Syntax :
+.RB < type "> <" devices "> [" options "] <" dir | file ">... [<" output ">]"
+.RS
+Creates a Kindle update package.
+.br
+You should be able to throw a mix of files & directories as input without trouble.
+.br
+Just keep in mind that by default, if you feed it absolute paths, it will archive absolute paths, which usually isn't what you want!
+.br
+If input is a single gzipped tarball
+.RI ( .tgz " or " .tar.gz )
+file, we assume it is properly packaged (bundlefile & sigfile), and will only convert it to an update.
+.br
+Output should be a file with the extension
+.IR .bin ,
+if it is not provided, or if it's a single dash, output to standard output.
+.br
+In case of OTA updates, all files with the extension
+.IR .ffs " or " .sh
+will be treated as update scripts.
+.RE
+.TP
+.RB < ota | ota2 | recovery | recovery2 | sig >
+Set the update type.
+.br
+.B OTA V1.
+OTA update package. Works on Kindle 3 and older.
+.br
+.B OTA V2.
+Signed OTA V2 update package. Works on Kindle 4 and newer.
+.br
+.B Recovery.
+Recovery package for restoring partitions.
+.br
+.B Recovery V2.
+Recovery V2 package for restoring partitions. Works on FW >= 5.2 (PaperWhite) and newer.
+.br
+.B Signature envelope.
+Use this to build a signed userdata package with the -U switch (FW >= 5.1 only, but device agnostic).
+.TP
+.BI \-d ", " \-\-device " device"
+Set the target device(s).
+.br
+.BR "OTA V1" " and " Recovery
+packages only support one device.
+.br
+.BR "OTA V2" " and " "Recovery V2"
+packages can support multiple devices, this parameter can then be specified multiple times.
+.br
+.I device
+is one of
+.BR k1 ", " k2 ", " k2i ", " dx ", " dxi ", " dxg ", " k3w ", " k3g ", " k3gb ", " k4 ", " k4b ", " k5w ", " k5g ", " k5gb ", " k5u ", " pw ", " pwg ", " pwgc ", " pwgb ", " pwgj ", " pwgbr ", " pw2 ", " pw2j ", " pw2g ", " pw2gc ", " pw2gb ", " pw2gr ", " pw2gj ", " pw2il ", " pw2gbl ", " pw2gl ", " pw2gcl ", " pw2gbrl ", " kt2 ", " kt2a ", " kv ", " kvg ", " kvgb ", " kvgj ", " kvgm ", " pw3 ", " pw3g ", " pw3gj ", " pw3gc ", " pw3gb ", " pw3gm ", " pw3jl ", " pw3w ", " pw3wgj ", " pw3wjl ", " pw3wgi ", " pw3wgib ", " koa ", " koag ", " koagb ", " koagbi ", " koagcn ", " kt3 ", " kt3w ", " koa2w8 ", " koa2g32 ", " koa2w32 ", " koa2g32b ", " koa2w32c ", " pw4 ", " pw4l ", " pw4lg ", " pw4lgb ", " pw4in ", " pw4lgjp ", " pw4tb ", " pw4ltb ", " pw4p ", " pw4s ", " pw4lin ", " pw4lp ", " pw4ls ", " kt4 ", " kt4w ", " kt4ke ", " kt4w8 ", " koa3w32c ", " koa3g32jp ", " koa3g32 ", " koa3w32 ", " koa3w8 ", " kindle2 ", " kindledx ", " kindle3 ", " legacy ", " kindle4 ", " touch ", " paperwhite ", " paperwhite2 ", " basic ", " voyage ", " paperwhite3 ", " oasis ", " basic2 ", " oasis2 ", " paperwhite4 ", " basic3 ", " oasis3 ", " kindle5 ", " none " or " auto .
+.TP
+.BI \-p ", " \-\-platform " platform"
+Set the target platform.
+.br
+.BR "Recovery FB02" " with " "header rev 2" " and " "Recovery V2" " only."
+Use a single platform per package.
+.br
+.I platform
+is one of
+.BR unspecified ", " mario ", " luigi ", " banjo ", " yoshi ", " yoshime-p ", " yoshime ", " wario ", " duet ", " heisenberg ", " zelda ", " rex " or " bellatrix .
+.TP
+.BI \-B ", " \-\-board " board"
+Set the target board.
+.br
+.BR "Recovery FB02" " with " "header rev 2" " and " "Recovery V2" " only."
+Use a single board per package.
+.br
+.I board
+is one of
+.BR unspecified ", " tequila " or " whitney .
+.TP
+.BR \-k ", " \-\-key " file"
+PEM file containing RSA private key to sign update. Default is popular jailbreak key.
+.TP
+.BR \-b ", " \-\-bundle " type"
+Manually specify package magic number. May override the default magic number of the chosen update type, if it makes sense.
+.br
+.I type
+is one of
+.BR FB01 ", " FB02 " for "
+.IR recovery ;
+.BR FB03 " for "
+.IR recovery2 ;
+.BR FC02 ", " FD03 " for "
+.IR ota " or "
+.BR FC04 ", " FD04 ", " FL01 " for "
+.IR ota2 " or "
+.BR SP01 " for "
+.I sig
+.TP
+.BR \-s ", " \-\-srcrev " uint"
+.B OTA
+updates only. Source revision.
+.B OTA V1
+uses
+.IR uint ,
+.B OTA V2
+uses
+.IR ulong .
+.br
+Lowest version of device that package supports. Default is
+.IR 0 .
+.br
+Also acccepts \fBmin\fR for \fI0\fR.
+.TP
+.BR \-t ", " \-\-tgtrev " uint"
+.BR OTA ", " "Recovery V2" " and " "Recovery FB02 with header rev 2"
+updates only. Target revision.
+.BR "OTA V1" " and " "Recovery V1H2"
+use
+.IR uint ,
+.BR "OTA V2" " and " "Recovery V2"
+use
+.IR ulong .
+.br
+Highest version of device that package supports. Default is
+.I ulong/uint max
+value.
+.br
+Also acccepts \fBmax\fR for the appropriate maximum value for the chosen update package type.
+.TP
+.BR \-h ", " \-\-hdrrev " uint"
+.BR "Recovery FB02" " and " "Recovery V2" " only."
+Header Revision. Default is
+.IR 0 .
+.TP
+.BR \-1 ", " \-\-magic1 " uint"
+.B Recovery
+updates only. Magic number 1. Default is
+.IR 0 .
+.TP
+.BR \-2 ", " \-\-magic2 " uint"
+.B Recovery
+updates only. Magic number 2. Default is
+.IR 0 .
+.TP
+.BR \-m ", " \-\-minor " uint"
+.B Recovery
+updates only. Minor number. Default is
+.IR 0 .
+.TP
+.BR \-c ", " \-\-cert " ushort"
+.B OTA V2
+updates only. The number of the certificate to use (found in /etc/uks on device). Default is
+.IR 0 .
+.br
+.BR 0 " = "
+.IR pubdevkey01.pem ,
+.BR 1 " = "
+.IR pubprodkey01.pem ,
+.BR 2 " = "
+.I pubprodkey02.pem
+.TP
+.BR \-o ", " \-\-opt " uchar"
+.B OTA V1
+updates only. One byte optional data expressed as a number. Default is
+.IR 0 .
+.TP
+.BR \-r ", " \-\-crit " uchar"
+.B OTA V2
+updates only. One byte optional data expressed as a number. Default is
+.IR 0 .
+.TP
+.BR \-x ", " \-\-meta " str"
+.B OTA V2
+updates only. An optional string to add. This parameter can then be specified multiple times.
+.br
+Format of metastring must be:
+.BR key = \fIvalue
+.TP
+.BR \-X ", " \-\-packaging
+.B OTA V2
+updates only. Adds \fBPackagedWith\fR, \fBPackagedBy\fR & \fBPackagedOn\fR metastrings, storing packaging metadata.
+.TP
+.BR \-a ", " \-\-archive
+Keep the intermediate archive.
+.TP
+.BR \-u ", " \-\-unsigned
+Build an unsigned & mangled userdata package.
+.TP
+.BR \-U ", " \-\-userdata
+Build an userdata package (can only be used with the sig update type).
+.TP
+.BR \-O ", " \-\-ota
+Build a versioned OTA bundle (can only be used with the ota2 update type).
+.TP
+.BR \-C ", " \-\-legacy
+Emulate the behaviour of yifanlu's KindleTool regarding directories. By default, we behave like tar:
+.br
+every path passed on the commandline is stored as-is in the archive. This switch changes that, and store paths
+.br
+relative to the path passed on the commandline, like if we had chdir'ed into it.
+.SS convert
+.IR Syntax :
+.RB [ options "] <" input >...
+.RS
+Converts a Kindle update package to a gzipped tar archive file, and delete input.
+.RE
+.TP
+.BR \-c ", " \-\-stdout
+Write to standard output, keeping original files unchanged.
+.TP
+.BR \-i ", " \-\-info
+Just print the package information, no conversion done.
+.TP
+.BR \-s ", " \-\-sig
+.BR "OTA V2" ", " "Recovery V2" " and " "Recovery FB02 with header rev 2"
+updates only. Extract the payload signature.
+.TP
+.BR \-k ", " \-\-keep
+Don't delete the input package.
+.TP
+.BR \-u ", " \-\-unsigned
+Assume input is an unsigned & mangled userdata package.
+.TP
+.BR \-w ", " \-\-unwrap
+Just unwrap the package, if it's wrapped in an UpdateSignature header (especially useful for userdata packages).
+.SS extract
+.IR Syntax :
+.RB [ options "] <" input "> <" output >
+.RS
+Extracts a Kindle update package to a directory.
+.RE
+.TP
+.BR \-u ", " \-\-unsigned
+Assume input is an unsigned & mangled userdata package.
+.SS info
+.IR Syntax :
+.RB < serialno >
+.RS
+Get the default root password.
+.br
+Unless you changed your password manually, the first password shown will be the right one.
+.br
+(The Kindle defaults to DES hashed passwords, which are truncated to 8 characters.
+.br
+See
+.BR crypt (3)
+for more details).
+.br
+If you're looking for the recovery MMC export password, that's the second one.
+.RE
+.SS md
+.IR Syntax :
+.RB [< input ">] [<" output >]
+.RS
+Obfuscates data using Amazon's update algorithm.
+.br
+If no input is provided, input from stdin
+.br
+If no output is provided, output to stdout
+.RE
+.SS dm
+.IR Syntax :
+.RB [< input ">] [<" output >]
+.RS
+Deobfuscates data using Amazon's update algorithm.
+.br
+If no input is provided, input from stdin
+.br
+If no output is provided, output to stdout
+.RE
+.SS version
+Show some info about this KindleTool build.
+.SS help
+Show the help screen.
+.SH NOTES
+If the variable
+.B KT_WITH_UNKNOWN_DEVCODES
+is set in your environment (no matter the value), some device checks will be relaxed with the create command.
+.br
+Currently, even though
+.B OTA V2
+supports updates that run on multiple devices,
+.br
+it is not possible to create an update package that will run on both
+.I FW 4.x
+(Kindle 4) and
+.I FW 5.x
+(Basically everything since the Kindle Touch).
+.SH BUGS
+Updates with meta-strings will probably fail to run when passed to
+.BR "Update Your Kindle" .
