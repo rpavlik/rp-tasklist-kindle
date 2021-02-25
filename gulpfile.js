@@ -1,5 +1,9 @@
-
-const { src, dest, parallel } = require("gulp");
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable require-jsdoc */
+// Copyright 2020, 2021 Ryan Pavlik <ryan.pavlik@gmail.com>
+// SPDX-License-Identifier: MIT
+'use strict';
+const { src, dest, parallel, task } = require("gulp");
 const nunjucksRender = require('gulp-nunjucks-render');
 const rename = require("gulp-rename");var fs = require('fs');
 const cleanDir = require('gulp-clean-dir');
@@ -21,6 +25,7 @@ function cleanTask(cb) {
     cleanDir(outDir);
     cb();
 }
+
 function scriptTemplatesTask() {
     return src(scriptTemplates)
         // Renders template with nunjucks
@@ -49,5 +54,24 @@ function appTemplatesTask() {
         .pipe(dest(outDir))
 }
 
-exports.default = parallel(scriptTemplatesTask, appTemplatesTask);
+
+const tap = require('gulp-tap');
+const sass = require('gulp-sass');
+const buffer = require('vinyl-buffer');
+const browserify = require('browserify');
+const tsify = require('tsify');
+const commonShake = require('common-shakeify');
+const packFlat = require('browser-pack-flat');
+
+task('css-compile', (done) => {
+    src('./src/app/scss/*.scss')
+    .pipe(sass({outputStyle: 'nested'}).on('error', sass.logError))
+    .pipe(autoprefixer())
+    // .pipe(rename({ dirname: cssAddonsPath }))
+    .pipe(gulp.dest('./dist/css'));
+
+    done();
+})
+
+exports.default = parallel(scriptTemplatesTask, appTemplatesTask, 'css-compile');
 exports.clean = cleanTask;
