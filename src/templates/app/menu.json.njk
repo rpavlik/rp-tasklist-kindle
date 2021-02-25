@@ -1,0 +1,19 @@
+{
+	"comment001": "{{friendlyName}}, a Kindle komic reader",
+	"comment002": "{{version}}",
+	"comment003": "by {{author}}",
+	"items": [
+		{
+			"name": "{{friendlyName}}",
+			"priority": 2,
+			"items": [
+				{% if start_script %}
+				{"name": "Run {{friendlyName}} v{{version}}", "priority": 1, "action": "{{start_script}}"		}
+				{% else %}
+				
+				{"name": "Run {{friendlyName}} v{{version}}", "priority": 1, "action": "lipc-set-prop com.lab126.appmgrd start app://{{qualifiedName}}"		}
+				{% endif %}
+			]
+		}
+	]
+}

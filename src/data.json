@@ -1,5 +1,7 @@
 {
     "friendlyName": "RPTaskList",
     "shortName": "rptasklist",
-    "qualifiedName": "com.ryanpavlik.kindle.rptasklist"
+    "qualifiedName": "com.ryanpavlik.kindle.rptasklist",
+    "author": "rpavlik",
+    "version": "1.0"
 }

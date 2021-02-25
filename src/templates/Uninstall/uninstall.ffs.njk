@@ -1,4 +1,6 @@
 {% extends "shared/base.ffs.njk" %}
+{# Based on script included with Komic, made a template by Ryan Pavlik rpavlik #}
+{% block body %}
 LOG=/mnt/us/{{friendlyName}}_uninstall_log.txt
 
 progress 25 "Removing {{friendlyName}} from appreg.db and upstart"
@@ -40,3 +42,5 @@ fi
 
 progress 100 "Uninstalling complete."
 echo "Uninstalling complete" >> $LOG
+
+{% endblock %}

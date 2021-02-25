@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+
+<widget xmlns="http://www.w3.org/ns/widgets" 
+		xmlns:kindle="http://kindle.amazon.com/ns/widget-extensions"
+    id="{{qualifiedName}}"
+    version="{{version}}"
+    viewmodes="application">
+    
+    <name>{{friendlyName}} v{{version}}</name>
+    <description>{{description}}</description>
+    <content src="index.html"/>
+	
+	<kindle:gestures>
+        <param name="drag" value="no"/>
+        <param name="pinchzoom" value="no" properties="fire-on-zoom:1"/>
+        <param name="tap" value="yes"/>
+        <param name="multi_tap" value="no"/>
+        <param name="hold" value="no"/>
+		<param name="swipe" value="no"/>
+    </kindle:gestures>
+
+	<feature name="http://kindle.amazon.com/apis" required="true">
+        <param name="appmgr" value="yes"/>
+        <param name="chrome" value="yes"/>
+        <param name="dev" value="yes"/>
+        <param name="download" value="yes"/>
+        <param name="gestures" value="yes"/>
+        <param name="messaging" value="yes"/>
+        <param name="net" value="yes"/>
+        <param name="viewport" value="yes"/>
+		<param name="popup" value="yes"/>
+    </feature>
+
+	<kindle:messaging>
+       	<kindle:app name="com.lab126.pillow" value="yes"/>
+		<kindle:app name="com.lab126.system" value="yes"/>
+		<kindle:app name="com.lab126.appmgrd" value="yes"/>
+    </kindle:messaging>
+		
+	<kindle:resources>
+        <kindle:asset key="LocalStoragePath" value="/mnt/us/extensions/{{shortName}}/bin/resource/LocalStorage" />
+		<kindle:asset key="DatabaseStoragePath" value="/mnt/us/extensions/{{shortName}}/bin/resource/Databases" />
+        <!-- 
+        Other available settings are
+        LocalStorageQuota ( set the max size of the local storage DB)
+        DatabaseStorageQuota ( set the html5 sqlite db quota)
+        ApplicationCacheQuota ( sets a max size of the application cache)          
+        -->
+    </kindle:resources>
+		
+	<kindle:chrome>
+       	<kindle:asset key="configureSearchBar" value="none"/>
+    </kindle:chrome>
+
+</widget>

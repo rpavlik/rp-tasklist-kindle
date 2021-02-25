@@ -4,6 +4,7 @@ LOCALSTORAGE=/mnt/us/extensions/{{shortName}}/bin/resource/LocalStorage/file__0.
 DOCS="/mnt/us/documents/{{friendlyName}}"
 INSTALLDIR="/mnt/us/extensions/{{shortName}}"
 UPSTART="/etc/upstart/{{shortName}}_event_handler.conf"
+{# Based on script included with Komic, made a template by Ryan Pavlik rpavlik #}
 
 progress()
 {
@@ -21,3 +22,5 @@ fail()
 	sleep 10
 	exit 1;
 }
+
+{% block body %}{% endblock %}

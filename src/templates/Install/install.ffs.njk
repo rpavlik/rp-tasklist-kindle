@@ -1,4 +1,6 @@
 {% extends "shared/base.ffs.njk" %}
+{# Based on script included with Komic, made a template by Ryan Pavlik rpavlik #}
+{% block body %}
 LOG=/mnt/us/{{friendlyName}}_update_log.txt
 
 progress 25 "Checking if {{friendlyName}} is installed"
@@ -30,7 +32,7 @@ then
 	if [ -d "$INSTALLDIR" ]
 	then
 		echo "{{friendlyName}} folder present" >> $LOG
-		komicpresent=1
+		installpresent=1
 	else
 		echo "{{friendlyName}} folder not present" >> $LOG
 	fi
@@ -59,7 +61,7 @@ if [[ -n "$appinstalled" ]]
 then
 	echo "Updating {{friendlyName}} and managing file__0.localstorage" >> $LOG
 	
-	if [[ -n "$komicpresent" ]]
+	if [[ -n "$installpresent" ]]
 	then
 		echo "Removing old {{friendlyName}} and unzipping new {{friendlyName}}" >> $LOG
 		rm -rf $INSTALLDIR || fail "Unable to delete {{friendlyName}} folder"
@@ -81,7 +83,7 @@ then
 	
 	echo "Updating upstart script" >> $LOG
 	rm -rf $UPSTART || fail "Unable to delete upstart script"
-	mv komic_event_handler.conf $UPSTART || fail "Unable to place upstart script"
+	mv {{shortName}}_event_handler.conf $UPSTART || fail "Unable to place upstart script"
 	
 	sqlite3 /mnt/us/extensions/{{shortName}}/bin/resource/LocalStorage/file__0.localstorage "INSERT INTO ItemTable (key, value) VALUES ('{{shortName}}Status', 'updated')"
 	
@@ -96,6 +98,7 @@ else
 	
 fi
 
+{% if hasDocsReadme %}
 progress 75 "Creating {{friendlyName}} documents folder"
 if [ -d "$DOCS" ]
 then
@@ -106,7 +109,9 @@ else
 	mkdir -p $DOCS
 	unzip -o =README=.zip -d $DOCS/ || fail "Unable to unzip README"
 fi
+{% endif %}
 
 progress 100 "Installation complete."
 echo "Installation complete" >> $LOG
 mv $LOG /mnt/us/extensions/{{shortName}}/bin/resource/Logs/{{friendlyName}}_update_log.txt
+{% endblock %}
