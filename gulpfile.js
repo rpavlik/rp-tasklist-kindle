@@ -3,7 +3,7 @@
 // Copyright 2020, 2021 Ryan Pavlik <ryan.pavlik@gmail.com>
 // SPDX-License-Identifier: MIT
 'use strict';
-const { src, dest, parallel, task } = require("gulp");
+const { src, dest, parallel, series, task } = require("gulp");
 const nunjucksRender = require('gulp-nunjucks-render');
 const rename = require("gulp-rename"); var fs = require('fs');
 const cleanDir = require('gulp-clean-dir');
@@ -26,8 +26,8 @@ function cleanTask(cb) {
     cb();
 }
 
-function scriptTemplatesTask() {
-    return src(scriptTemplates)
+const scriptTemplatesTask = (cb) => {
+    src(scriptTemplates)
         // Renders template with nunjucks
         .pipe(nunjucksRender({
             path: [templatesDir],
@@ -40,10 +40,11 @@ function scriptTemplatesTask() {
         }))
         // output files in app folder
         .pipe(dest(outDir))
+    cb();
 }
 
-function appTemplatesTask() {
-    return src(appTemplates)
+function appTemplatesTask(cb) {
+    src(appTemplates)
         // Renders template with nunjucks - no renaming
         .pipe(nunjucksRender({
             path: [templatesDir],
@@ -51,7 +52,9 @@ function appTemplatesTask() {
             data: loadedData
         }))
         // output files in app folder
-        .pipe(dest(outDir))
+        .pipe(dest(outDir));
+
+    cb();
 }
 
 
@@ -60,17 +63,24 @@ const sass = require('gulp-sass');
 const buffer = require('vinyl-buffer');
 const browserify = require('browserify');
 const tsify = require('tsify');
-const autoprefixer = require('gulp-autoprefixer');
+// const autoprefixer = require('gulp-autoprefixer');
 const commonShake = require('common-shakeify');
 const packFlat = require('browser-pack-flat');
 const babel = require('babelify');
+const log = require('gulplog');
+const sourcemaps = require('gulp-sourcemaps');
+
+const postcss = require('gulp-postcss');
+const autoprefixer = require('autoprefixer');
 
 const css_compile = (done) => {
     src('./src/app/scss/*.scss')
+        .pipe(sourcemaps.init())
         .pipe(sass({ outputStyle: 'nested' }).on('error', sass.logError))
-        .pipe(autoprefixer())
+        .pipe(postcss([autoprefixer()]))
+        .pipe(sourcemaps.write())
         // .pipe(rename({ dirname: cssAddonsPath }))
-        .pipe(gulp.dest('./dist/bin/css'));
+        .pipe(dest('./dist/bin/css'));
 
     done();
 };
@@ -82,36 +92,51 @@ const html_compile = (done) => {
             ext: '',
             data: loadedData
         }))
-        .pipe(dest(intermediateDir));
+        .pipe(dest('./dist/bin'));
+    done();
+};
+const ts_compile = (done) => {
+    browserify('./src/app/*.ts', {
+        basedir: './src/app',
+        debug: false,
+        cache: {},
+        packageCache: {},
+    })
+        .transform(babel)
+        .plugin(tsify)
+        .plugin(commonShake)
+        .plugin(packFlat)
+        .bundle()
+        .pipe(dest('./dist/bin'));
     done();
 };
 
-const combine = series(html_compile, (done) => {
-    // We have multiple entry points,
-    // but we'd like to bundle them each into their own file.
+// const combine = series(html_compile, (done) => {
+//     // We have multiple entry points,
+//     // but we'd like to bundle them each into their own file.
 
-    // Don't read: browserify will
-    src(intermediateDir + '/*.html', { read: false })
-        .pipe(tap(function (file) {
+//     // Don't read: browserify will
+//     src('./src/app/*.{ts,html}', { read: false })
+//         .pipe(tap(function (file) {
 
-            // To turn each of those files into a browserify instance,
-            // replace their content
-            log.info(`processing: ${file.basename}`);
-            file.contents = browserify(file.path, {
-                basedir: intermediateDir,
-                debug: false,
-                cache: {},
-                packageCache: {},
-            })
-                .transform(babel)
-                .plugin(tsify)
-                .plugin(commonShake)
-                .plugin(packFlat)
-                .bundle();
-        }))
-        .pipe(buffer())
-        .pipe(dest('./dist/bin'));
-    done();
-});
-exports.default = parallel(scriptTemplatesTask, appTemplatesTask, css_compile, combine);
+//             // To turn each of those files into a browserify instance,
+//             // replace their content
+//             log.info(`processing: ${file.basename}`);
+//             file.contents = browserify(file.path, {
+//                 basedir: intermediateDir,
+//                 debug: false,
+//                 cache: {},
+//                 packageCache: {},
+//             })
+//                 .transform(babel)
+//                 .plugin(tsify)
+//                 .plugin(commonShake)
+//                 .plugin(packFlat)
+//                 .bundle();
+//         }))
+//         .pipe(buffer())
+//         .pipe(dest('./dist/bin'));
+//     done();
+// });
+exports.default = parallel(scriptTemplatesTask, appTemplatesTask, css_compile, html_compile, ts_compile);
 exports.clean = cleanTask;
