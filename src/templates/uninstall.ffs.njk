@@ -1,0 +1,42 @@
+{% extends "shared/base.ffs.njk" %}
+LOG=/mnt/us/{{friendlyName}}_uninstall_log.txt
+
+progress 25 "Removing {{friendlyName}} from appreg.db and upstart"
+installed=$(sqlite3 /var/local/appreg.db "select handlerId from handlerIds where handlerId='{{qualifiedName}}'")
+if [[ -n "$installed" ]]
+then
+	sqlite3 /var/local/appreg.db "delete from handlerIds where handlerId='{{qualifiedName}}'"
+	sqlite3 /var/local/appreg.db "delete from properties where handlerId='{{qualifiedName}}'"
+	echo "{{friendlyName}} removed from appreg.db" >> $LOG
+else
+	echo "{{friendlyName}} is not yet installed" >> $LOG
+fi
+
+if [ -s $UPSTART ]
+then
+	rm -f $UPSTART
+	echo "Upstart script removed" >> $LOG	
+else
+	echo "Upstart script not present" >> $LOG
+fi
+
+progress 50 "Removing {{friendlyName}} from extensions"
+if [ -d "$INSTALLDIR" ]
+	then
+		rm -rf $INSTALLDIR
+		echo "{{friendlyName}} folder removed" >> $LOG
+	else
+		echo "{{friendlyName}} folder not present" >> $LOG
+fi
+
+# progress 75 "Removing {{friendlyName}} documents folder"
+# if [ -d "$DOCS" ]
+# 	then
+# 		rm -rf $DOCS
+# 		echo "{{friendlyName}} documents folder removed" >> $LOG
+# 	else
+# 		echo "{{friendlyName}} documents folder not present" >> $LOG
+# fi
+
+progress 100 "Uninstalling complete."
+echo "Uninstalling complete" >> $LOG
