@@ -59,14 +59,14 @@ function appTemplatesTask(cb) {
 
 
 // const tap = require('gulp-tap');
-// const sass = require('gulp-sass');
+const sass = require('gulp-sass');
 // const buffer = require('vinyl-buffer');
-const browserify = require('browserify');
-const tsify = require('tsify');
+// const browserify = require('browserify');
+// const tsify = require('tsify');
 // const autoprefixer = require('gulp-autoprefixer');
 // const commonShake = require('common-shakeify');
 // const packFlat = require('browser-pack-flat');
-const babelify = require('babelify');
+// const babelify = require('babelify');
 // const log = require('gulplog');
 const sourcemaps = require('gulp-sourcemaps');
 // const uglify = require('gulp-uglify');
@@ -75,47 +75,47 @@ const sourcemaps = require('gulp-sourcemaps');
 // const autoprefixer = require('autoprefixer');
 // var source = require('vinyl-source-stream');
 
-const css_compile = (done) => {
-    // src('./src/app/scss/*.scss')
-    //     .pipe(sourcemaps.init())
-    //     .pipe(sass({ outputStyle: 'nested' }).on('error', sass.logError))
-    //     // .pipe(postcss([autoprefixer()]))
-    //     // .pipe(autoprefixer())
-    //     .pipe(sourcemaps.write())
-    //     // .pipe(rename({ dirname: cssAddonsPath }))
-    //     .pipe(dest('./dist/bin/css'));
+// const css_compile = (done) => {
+//     src('./src/app/scss/*.scss')
+//         .pipe(sourcemaps.init())
+//         .pipe(sass({ outputStyle: 'nested' }).on('error', sass.logError))
+//         // .pipe(postcss([autoprefixer()]))
+//         // .pipe(autoprefixer())
+//         .pipe(sourcemaps.write())
+//         // .pipe(rename({ dirname: cssAddonsPath }))
+//         .pipe(dest('./dist/bin/css'));
 
-    done();
-};
+//     done();
+// };
 const intermediateDir = './dist/intermediate/html';
-const html_compile = (done) => {
-    src('./src/app/*.njk')
-        .pipe(nunjucksRender({
-            path: [templatesDir],
-            ext: '',
-            data: loadedData
-        }))
-        .pipe(dest('./dist/bin'));
-    done();
-};
-const ts_compile = (done) => {
-    var b = browserify({
-        entries: ['src/app/main.ts']
-    })
-        .plugin(tsify, { target: 'es6' });
-        // .transform(babelify, { extensions: ['.tsx', '.ts'] });
+// const html_compile = (done) => {
+//     src('./src/app/*.njk')
+//         .pipe(nunjucksRender({
+//             path: [templatesDir],
+//             ext: '',
+//             data: loadedData
+//         }))
+//         .pipe(dest('./dist/bin'));
+//     done();
+// };
+// const ts_compile = (done) => {
+//     var b = browserify({
+//         entries: ['src/app/main.ts']
+//     })
+//         .plugin(tsify, { target: 'es6' });
+//         // .transform(babelify, { extensions: ['.tsx', '.ts'] });
 
-    b
-        // .plugin(commonShake)
-        // .plugin(packFlat)
-        .bundle()
-        // .pipe(source('main.min.ts'))
-        // .pipe(buffer())
+//     b
+//         // .plugin(commonShake)
+//         // .plugin(packFlat)
+//         .bundle()
+//         // .pipe(source('main.min.ts'))
+//         // .pipe(buffer())
 
-        // .pipe(uglify().on('error', log.info))
-        .pipe(dest('./dist/bin'));
-    done();
-};
+//         // .pipe(uglify().on('error', log.info))
+//         .pipe(dest('./dist/bin'));
+//     done();
+// };
 
-exports.default = parallel(scriptTemplatesTask, appTemplatesTask, css_compile, html_compile, ts_compile);
+exports.default = parallel(scriptTemplatesTask, appTemplatesTask); //, css_compile, html_compile);
 exports.clean = cleanTask;
