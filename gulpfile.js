@@ -7,7 +7,7 @@ const { src, dest, parallel, series, task } = require("gulp");
 const nunjucksRender = require('gulp-nunjucks-render');
 const rename = require("gulp-rename"); var fs = require('fs');
 const cleanDir = require('gulp-clean-dir');
-const zip = require('gulp-zip');
+// const zip = require('gulp-zip');
 
 
 const templatesDir = 'src/templates';
@@ -58,29 +58,32 @@ function appTemplatesTask(cb) {
 }
 
 
-const tap = require('gulp-tap');
-const sass = require('gulp-sass');
-const buffer = require('vinyl-buffer');
+// const tap = require('gulp-tap');
+// const sass = require('gulp-sass');
+// const buffer = require('vinyl-buffer');
 const browserify = require('browserify');
 const tsify = require('tsify');
 // const autoprefixer = require('gulp-autoprefixer');
-const commonShake = require('common-shakeify');
-const packFlat = require('browser-pack-flat');
-const babel = require('babelify');
-const log = require('gulplog');
+// const commonShake = require('common-shakeify');
+// const packFlat = require('browser-pack-flat');
+const babelify = require('babelify');
+// const log = require('gulplog');
 const sourcemaps = require('gulp-sourcemaps');
-
-const postcss = require('gulp-postcss');
-const autoprefixer = require('autoprefixer');
+// const uglify = require('gulp-uglify');
+// const terser = require('gulp-terser');
+// const postcss = require('gulp-postcss');
+// const autoprefixer = require('autoprefixer');
+// var source = require('vinyl-source-stream');
 
 const css_compile = (done) => {
-    src('./src/app/scss/*.scss')
-        .pipe(sourcemaps.init())
-        .pipe(sass({ outputStyle: 'nested' }).on('error', sass.logError))
-        .pipe(postcss([autoprefixer()]))
-        .pipe(sourcemaps.write())
-        // .pipe(rename({ dirname: cssAddonsPath }))
-        .pipe(dest('./dist/bin/css'));
+    // src('./src/app/scss/*.scss')
+    //     .pipe(sourcemaps.init())
+    //     .pipe(sass({ outputStyle: 'nested' }).on('error', sass.logError))
+    //     // .pipe(postcss([autoprefixer()]))
+    //     // .pipe(autoprefixer())
+    //     .pipe(sourcemaps.write())
+    //     // .pipe(rename({ dirname: cssAddonsPath }))
+    //     .pipe(dest('./dist/bin/css'));
 
     done();
 };
@@ -96,47 +99,23 @@ const html_compile = (done) => {
     done();
 };
 const ts_compile = (done) => {
-    browserify('./src/app/*.ts', {
-        basedir: './src/app',
-        debug: false,
-        cache: {},
-        packageCache: {},
+    var b = browserify({
+        entries: ['src/app/main.ts']
     })
-        .transform(babel)
-        .plugin(tsify)
-        .plugin(commonShake)
-        .plugin(packFlat)
+        .plugin(tsify, { target: 'es6' });
+        // .transform(babelify, { extensions: ['.tsx', '.ts'] });
+
+    b
+        // .plugin(commonShake)
+        // .plugin(packFlat)
         .bundle()
+        // .pipe(source('main.min.ts'))
+        // .pipe(buffer())
+
+        // .pipe(uglify().on('error', log.info))
         .pipe(dest('./dist/bin'));
     done();
 };
 
-// const combine = series(html_compile, (done) => {
-//     // We have multiple entry points,
-//     // but we'd like to bundle them each into their own file.
-
-//     // Don't read: browserify will
-//     src('./src/app/*.{ts,html}', { read: false })
-//         .pipe(tap(function (file) {
-
-//             // To turn each of those files into a browserify instance,
-//             // replace their content
-//             log.info(`processing: ${file.basename}`);
-//             file.contents = browserify(file.path, {
-//                 basedir: intermediateDir,
-//                 debug: false,
-//                 cache: {},
-//                 packageCache: {},
-//             })
-//                 .transform(babel)
-//                 .plugin(tsify)
-//                 .plugin(commonShake)
-//                 .plugin(packFlat)
-//                 .bundle();
-//         }))
-//         .pipe(buffer())
-//         .pipe(dest('./dist/bin'));
-//     done();
-// });
 exports.default = parallel(scriptTemplatesTask, appTemplatesTask, css_compile, html_compile, ts_compile);
 exports.clean = cleanTask;
