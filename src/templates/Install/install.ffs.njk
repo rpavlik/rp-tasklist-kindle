@@ -59,7 +59,11 @@ progress 50 "Copying {{friendlyName}}"
 echo "--------------------------------" >> $LOG
 if [[ -n "$appinstalled" ]]
 then
+	{% if useLocalStorage %}
 	echo "Updating {{friendlyName}} and managing file__0.localstorage" >> $LOG
+	{% else %}
+	echo "Updating {{friendlyName}}" >> $LOG
+	{% endif %}
 	
 	if [[ -n "$installpresent" ]]
 	then
@@ -71,6 +75,7 @@ then
 		unzip {{shortName}}.zip -d /mnt/us/extensions/ || fail "Unable to unzip {{friendlyName}}"
 	fi
 	
+	{% if useLocalStorage %}
 	if [[ -n "$localstoragepresent" ]]
 	then
 		echo "Restoring old file__0.localstorage" >> $LOG
@@ -80,21 +85,31 @@ then
 		echo "Placing new file__0.localstorage" >> $LOG
 		mv file__0.localstorage $LOCALSTORAGE || fail "Unable to place new file__0.localstorage"
 	fi
+	{% endif %}
 	
 	echo "Updating upstart script" >> $LOG
 	rm -rf $UPSTART || fail "Unable to delete upstart script"
 	mv {{shortName}}_event_handler.conf $UPSTART || fail "Unable to place upstart script"
 	
+	{% if useLocalStorage %}
 	sqlite3 /mnt/us/extensions/{{shortName}}/bin/resource/LocalStorage/file__0.localstorage "INSERT INTO ItemTable (key, value) VALUES ('{{shortName}}Status', 'updated')"
-	
+	{% endif %}
 else
 
+	{% if useLocalStorage %}
 	echo "Installing {{friendlyName}}, placing plain file__0.localstorage and upstart script" >> $LOG
+	{% else %}
+	echo "Installing {{friendlyName}} and placing upstart script" >> $LOG
+	{% endif %}
 	unzip -o {{shortName}}.zip -d /mnt/us/extensions/ || fail "Unable to unzip {{friendlyName}}"
+	{% if useLocalStorage %}
 	mv file__0.localstorage $LOCALSTORAGE || fail "Unable to place new file__0.localstorage"
-	mv komic_event_handler.conf $UPSTART || fail "Unable to place upstart script"
+	{% endif %}
+	mv {{shortName}}_event_handler.conf $UPSTART || fail "Unable to place upstart script"
 	
+	{% if useLocalStorage %}
 	sqlite3 /mnt/us/extensions/{{shortName}}/bin/resource/LocalStorage/file__0.localstorage "INSERT INTO ItemTable (key, value) VALUES ('{{shortName}}Status', 'firstRun')"
+	{% endif %}
 	
 fi
 

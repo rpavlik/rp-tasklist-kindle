@@ -3,16 +3,15 @@
 // Copyright 2020, 2021 Ryan Pavlik <ryan.pavlik@gmail.com>
 // SPDX-License-Identifier: MIT
 'use strict';
-const { src, dest, parallel, series, task } = require("gulp");
+const { src, dest, parallel, series } = require("gulp");
 const nunjucksRender = require('gulp-nunjucks-render');
 const rename = require("gulp-rename"); var fs = require('fs');
 const cleanDir = require('gulp-clean-dir');
-// const zip = require('gulp-zip');
-
+const zip = require('gulp-zip');
 
 const templatesDir = 'src/templates';
 const scriptTemplates = `${templatesDir}/{Install,Uninstall}/*.njk`;
-const appTemplates = `${templatesDir}/app/{**/}*.njk`;
+const appTemplates = `${templatesDir}/app/**/*.njk`;
 const outDir = './dist';
 
 function getData() {
@@ -26,8 +25,8 @@ function cleanTask(cb) {
     cb();
 }
 
-const scriptTemplatesTask = (cb) => {
-    src(scriptTemplates)
+const scriptTemplatesTask = () => {
+    return src(scriptTemplates)
         // Renders template with nunjucks
         .pipe(nunjucksRender({
             path: [templatesDir],
@@ -39,12 +38,11 @@ const scriptTemplatesTask = (cb) => {
             path.basename = loadedData['shortName'] + '_' + path.basename;
         }))
         // output files in app folder
-        .pipe(dest(outDir))
-    cb();
+        .pipe(dest(outDir));
 }
 
-function appTemplatesTask(cb) {
-    src(appTemplates)
+const appTemplatesTask = () => {
+    return src(appTemplates)
         // Renders template with nunjucks - no renaming
         .pipe(nunjucksRender({
             path: [templatesDir],
@@ -52,70 +50,59 @@ function appTemplatesTask(cb) {
             data: loadedData
         }))
         // output files in app folder
-        .pipe(dest(outDir));
+        .pipe(dest(`${outDir}/${loadedData['shortName']}`));
+}
 
-    cb();
+const appZipTask = () => {
+    return src(`${outDir}/${loadedData['shortName']}`)
+        .pipe(zip(`${loadedData['shortName']}.zip`))
+        .pipe(dest(`${outDir}/Install`));
+}
+
+const { spawn } = require('child_process');
+
+const runKindleTool = (cwd, args, cb) => {
+
+    const kindletool = spawn('../../kindletool/kindletool',
+        args,
+        {
+            cwd: cwd,
+            stdio: ['ignore', 'inherit', 'inherit']
+        });
+    kindletool.on('close', (code) => {
+        console.log(`kindletool exited with code ${code}`);
+        cb();
+    });
+}
+
+// https://storage.sbg.cloud.ovh.net/v1/AUTH_2ac4bfee353948ec8ea7fd1710574097/mr-public/KindleTool/kindletool-v1.6.5.230-linux-x86_64.tar.gz
+const kindleToolInstall = (cb) => {
+    const shortName = loadedData['shortName'];
+    const version = loadedData['version'];
+    runKindleTool(process.cwd() + '/dist/Install',
+        [
+            'create',
+            'ota2',
+            '-d', 'kindle5',
+            `${shortName}_install.ffs`,
+            `${shortName}.zip`,
+            `${shortName}_event_handler.conf`,
+            `update_${shortName}_v${version}_install.bin`
+        ], cb);
 }
 
 
-// const tap = require('gulp-tap');
-const sass = require('gulp-sass');
-// const buffer = require('vinyl-buffer');
-// const browserify = require('browserify');
-// const tsify = require('tsify');
-// const autoprefixer = require('gulp-autoprefixer');
-// const commonShake = require('common-shakeify');
-// const packFlat = require('browser-pack-flat');
-// const babelify = require('babelify');
-// const log = require('gulplog');
-const sourcemaps = require('gulp-sourcemaps');
-// const uglify = require('gulp-uglify');
-// const terser = require('gulp-terser');
-// const postcss = require('gulp-postcss');
-// const autoprefixer = require('autoprefixer');
-// var source = require('vinyl-source-stream');
-
-// const css_compile = (done) => {
-//     src('./src/app/scss/*.scss')
-//         .pipe(sourcemaps.init())
-//         .pipe(sass({ outputStyle: 'nested' }).on('error', sass.logError))
-//         // .pipe(postcss([autoprefixer()]))
-//         // .pipe(autoprefixer())
-//         .pipe(sourcemaps.write())
-//         // .pipe(rename({ dirname: cssAddonsPath }))
-//         .pipe(dest('./dist/bin/css'));
-
-//     done();
-// };
-const intermediateDir = './dist/intermediate/html';
-// const html_compile = (done) => {
-//     src('./src/app/*.njk')
-//         .pipe(nunjucksRender({
-//             path: [templatesDir],
-//             ext: '',
-//             data: loadedData
-//         }))
-//         .pipe(dest('./dist/bin'));
-//     done();
-// };
-// const ts_compile = (done) => {
-//     var b = browserify({
-//         entries: ['src/app/main.ts']
-//     })
-//         .plugin(tsify, { target: 'es6' });
-//         // .transform(babelify, { extensions: ['.tsx', '.ts'] });
-
-//     b
-//         // .plugin(commonShake)
-//         // .plugin(packFlat)
-//         .bundle()
-//         // .pipe(source('main.min.ts'))
-//         // .pipe(buffer())
-
-//         // .pipe(uglify().on('error', log.info))
-//         .pipe(dest('./dist/bin'));
-//     done();
-// };
-
-exports.default = parallel(scriptTemplatesTask, appTemplatesTask); //, css_compile, html_compile);
+const kindleToolUninstall = (cb) => {
+    const shortName = loadedData['shortName'];
+    const version = loadedData['version'];
+    runKindleTool(process.cwd() + '/dist/Uninstall',
+        [
+            'create',
+            'ota2',
+            '-d', 'kindle5',
+            `${shortName}_uninstall.ffs`,
+            `update_${shortName}_v${version}_uninstall.bin`
+        ], cb);
+}
+exports.default = series(parallel(scriptTemplatesTask, appTemplatesTask), appZipTask, kindleToolUninstall, kindleToolInstall);
 exports.clean = cleanTask;

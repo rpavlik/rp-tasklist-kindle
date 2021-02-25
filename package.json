@@ -5,12 +5,13 @@
   "app": "./src/app/index.html",
   "scripts": {
     "clean": "npx gulp clean",
-    "build": "npx gulp && npx parcel build ./src/app/index.html",
+    "build": "npx parcel build ./src/app/index.html && npx gulp",
+    "serve": "npx parcel serve ./src/app/index.html",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "targets": {
     "app": {
-      "distDir": "./dist/bin"
+      "distDir": "./dist/rptasklist/bin"
     }
   },
   "author": "",
@@ -29,34 +30,17 @@
     "@parcel/transformer-postcss": "^2.0.0-nightly.610",
     "@parcel/transformer-posthtml": "^2.0.0-nightly.610",
     "@parcel/transformer-sass": "^2.0.0-nightly.610",
-    "babel-loader": "^8.2.2",
-    "babelify": "^10.0.0",
-    "browser-pack-flat": "^3.4.2",
-    "browserify": "^17.0.0",
     "browserslist": "^4.16.3",
-    "common-shakeify": "^0.6.2",
     "core-js": "^3.9.0",
     "gulp": "^4.0.2",
     "gulp-clean-dir": "^1.0.2",
-    "gulp-eslint": "^6.0.0",
     "gulp-nunjucks-render": "^2.2.3",
     "gulp-rename": "^2.0.0",
-    "gulp-sass": "^4.1.0",
-    "gulp-sourcemaps": "^3.0.0",
-    "gulp-tap": "^2.0.0",
-    "gulp-terser": "^2.0.1",
+    "gulp-zip": "^5.0.2",
     "gulplog": "^1.0.0",
-    "nunjucks": "^3.2.3",
     "parcel": "^2.0.0-nightly.608",
-    "postcss": "^8.2.6",
-    "ts-loader": "^8.0.17",
-    "tsify": "^5.0.2",
     "tslib": "^1.14.1",
-    "typescript": "^4.1.0",
-    "vinyl": "^2.2.1",
-    "vinyl-fs": "^3.0.3",
-    "webpack": "^5.24.2",
-    "webpack-cli": "^4.5.0"
+    "typescript": "^4.1.0"
   },
   "dependencies": {
     "purecss": "^2.0.5"
