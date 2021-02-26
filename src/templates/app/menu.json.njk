@@ -1,5 +1,6 @@
 {
-	"comment001": "{{friendlyName}}, a Kindle komic reader",
+	{% from "shared/macros.njk" import lipc_start_app with context %}
+	"comment001": "{{friendlyName}}",
 	"comment002": "{{version}}",
 	"comment003": "by {{author}}",
 	"items": [
@@ -7,11 +8,23 @@
 			"name": "{{friendlyName}}",
 			"priority": 2,
 			"items": [
-				{% if start_script %}
-				{"name": "Run {{friendlyName}} v{{version}}", "priority": 1, "action": "{{start_script}}"		}
-				{% else %}
-				
-				{"name": "Run {{friendlyName}} v{{version}}", "priority": 1, "action": "lipc-set-prop com.lab126.appmgrd start app://{{qualifiedName}}"		}
+				{
+					"name": "Run {{friendlyName}} v{{version}}",
+					"priority": 1,
+					{% if start_script %}
+					"action": "{{start_script}}"
+					{% else %}
+					"action": "{{ lipc_start_app() }}"
+					{% endif %}
+				}
+				{% if unregisterScript %}
+				,
+				{
+					"name": "Unregister {{friendlyName}} v{{version}}",
+					"priority": 1,
+					"action": "{{unregisterScript}}"
+				}
+
 				{% endif %}
 			]
 		}

@@ -4,5 +4,30 @@
     "qualifiedName": "com.ryanpavlik.kindle.rptasklist",
     "author": "rpavlik",
     "version": "1.0",
-    "startScript": "/mnt/us/extensions/rptasklist/bin/start.sh"
+    "startScript": "/mnt/us/extensions/rptasklist/bin/start.sh",
+    "unregisterScript": "/mnt/us/extensions/rptasklist/bin/unregister.sh",
+    "widget": {
+        "features": [
+            "appmgr",
+            "chrome",
+            "dev",
+            "download",
+            "gestures",
+            "messaging",
+            "net",
+            "viewport",
+            "popup"
+        ],
+        "messaging_app": [
+            "com.lab126.pillow",
+            "com.lab126.system",
+            "com.lab126.appmgrd"
+        ],
+        "resources": {},
+        "#resources": "may include: LocalStoragePath, DatabaseStoragePath, LocalStorageQuota, DatabaseStorageQuota (html5 sqlite), ApplicationCacheQuota",
+        "gestures": [
+            "tap",
+            "drag"
+        ]
+    }
 }

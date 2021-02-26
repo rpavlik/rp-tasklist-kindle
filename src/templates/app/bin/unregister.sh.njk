@@ -7,10 +7,10 @@ SPDX-License-Identifier: MIT
 from 'shared/macros.njk' import sqlite_appreg, appreg_sql_register_app, appreg_sql_register_command, installdir, mesquite_launch_command, appreg_sql_set_unload_policy, lipc_start_app with context 
 %}
 
-{{ sqlite_appreg() }} <<EOF
-{{ appreg_sql_register_app() }};
-{{ appreg_sql_register_command(mesquite_launch_command(installdir() + '/bin'))}};
-{{ appreg_sql_set_unload_policy() }};
+REGISTERED=$({{ sqlite_appreg() }} "SELECT handlerId FROM handlerIds WHERE handlerId='{{qualifiedName}}'")
+if [[ ! -z "$REGISTERED" ]]; then
+	{{ sqlite_appreg() }} <<EOF
+	DELETE FROM handlerIds WHERE handlerId='{{qualifiedName}}';
+	DELETE FROM properties WHERE handlerId='{{qualifiedName}}';
 EOF
-
-{{ lipc_start_app() }}
+fi
