@@ -1,0 +1,100 @@
+default namespace = "http://www.w3.org/ns/widgets"
+namespace kindle = "http://kindle.amazon.com/ns/widget-extensions"
+
+include "widgets.rnc" {
+    elem.feature = kindle_api.feature
+    group.widgetContent &= elem.name*
+                    & elem.description*
+                    & elem.icon*
+                    & elem.author?
+                    & elem.license*
+                    & elem.content?
+                    & elem.feature*
+                    & elem.preference*
+                    & kindle.cookiejar*
+                    & kindle.network*
+                    & kindle.permissions*
+                    & kindle.messaging*
+                    & kindle.settings*
+                    & kindle.gestures*
+                    & foreignElement*
+}
+kindle_api.feature =
+    element feature {
+        attribute name { "http://kindle.amazon.com/apis" },
+        attribute required { data.boolean },
+        element param {
+            attribute name { kindle_api.feature_param_names },
+            attribute value { yes_no }
+        }+
+    }
+
+kindle.cookiejar =
+    element kindle:cookiejar {
+        element kindle:asset {
+            attribute key {
+                "persistent" | "usePrivateCookies" | "useDeviceCookies"
+            },
+            attribute value { data.boolean }
+        }*
+    }
+kindle.network =
+    element kindle:network {
+        (element kindle:asset {
+             attribute key { "user-agent" },
+             attribute value { text }
+         }
+         | element kindle:asset {
+               attribute key { "enableWrsProxy" },
+               attribute value { data.boolean }
+           })*
+    }
+kindle.permissions =
+    element kindle:permissions {
+        element kindle:permission {
+            attribute name { "download-allowed" }
+        }*
+    }
+kindle.messaging =
+    element kindle:messaging {
+        element kindle:app {
+            attribute name { id_t },
+            attribute value { yes_no }
+        }
+    }
+kindle.settings =
+    element kindle:settings {
+        element kindle:setting {
+             (
+                 attribute name { "defaultFontSize" },
+             attribute value { data.positiveNumber }
+             ) | (
+                 
+               attribute name { "debug" },
+               attribute value { yes_no }
+             )
+         }*
+    }
+kindle.gestures =
+    element kindle:gestures {
+        element kindle:param {
+            attribute name { kindle.gesture_param_names },
+            attribute properties { xsd:NMTOKEN }?,
+            attribute value { yes_no }
+        }*
+    }
+
+id_t = xsd:NCName
+yes_no = "yes" | "no"
+kindle.gesture_param_names =
+    "drag" | "pinchzoom" | "tap" | "multi_tap" | "hold"
+kindle_api.feature_param_names =
+    "appmgr"
+    | "chrome"
+    | "dev"
+    | "download"
+    | "gestures"
+    | "messaging"
+    | "net"
+    | "viewport"
+    | "popup"
