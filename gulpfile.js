@@ -54,7 +54,7 @@ const appTemplatesTask = () => {
 }
 
 const appZipTask = () => {
-    return src(`${outDir}/${loadedData['shortName']}`)
+    return src(`${outDir}/${loadedData['shortName']}/{,**/}*`, { base: outDir })
         .pipe(zip(`${loadedData['shortName']}.zip`))
         .pipe(dest(`${outDir}/Install`));
 }
