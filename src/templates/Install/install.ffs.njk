@@ -5,9 +5,8 @@ LOG=/mnt/us/{{friendlyName}}_update_log.txt
 
 progress 25 "Checking if {{friendlyName}} is installed"
 varhandler=$(sqlite3 /var/local/appreg.db "select handlerId from handlerIds where handlerId='{{qualifiedName}}'")
-varmemory=$(sqlite3 /var/local/appreg.db "select handlerId from properties where handlerId='{{qualifiedName}}' and name='memUnloadLevel'")
+progress 26 "Checking if {{friendlyName}} is installed: mesquite"
 mesquite=$(sqlite3 /var/local/appreg.db "select value from properties where handlerId='{{qualifiedName}}' and name='command'" | grep mesquite)
-varbaseus=$(sqlite3 /var/local/appreg.db "select value from properties where handlerId='{{qualifiedName}}' and name='command'" | grep base)
 
 if [[ -n "$varhandler" ]]
 then
@@ -21,12 +20,6 @@ then
 		sqlite3 /var/local/appreg.db "INSERT INTO properties (handlerId, name, value) VALUES ('{{qualifiedName}}','command','/usr/bin/mesquite -l {{qualifiedName}} -c /mnt/us/extensions/{{shortName}}/bin/')"
 	else
 		echo "{{friendlyName}} is already updated to mesquite" >> $LOG
-		if [[ ! -z "$varbaseus" ]]
-		then
-			echo "Moving installation folder to /mnt/us" >> $LOG
-			sqlite3 /var/local/appreg.db "delete from properties where handlerId='{{qualifiedName}}' and name='command'"
-			sqlite3 /var/local/appreg.db "INSERT INTO properties (handlerId, name, value) VALUES ('{{qualifiedName}}','command','/usr/bin/mesquite -l {{qualifiedName}} -c /mnt/us/extensions/{{shortName}}/bin/')"
-		fi
 	fi
 	
 	if [ -d "$INSTALLDIR" ]
@@ -46,14 +39,20 @@ else
 	
 fi
 
+{% if memUnloadLevel %}
+progress 27 "Checking if {{friendlyName}} is installed: memory"
+varmemory=$(sqlite3 /var/local/appreg.db "select handlerId from properties where handlerId='{{qualifiedName}}' and name='memUnloadLevel'")
 if [[ -n "$varmemory" ]]
 then
 	echo "Bigger memory space already present" >> $LOG
 else
 	echo "Bigger memory space not present" >> $LOG
-	sqlite3 /var/local/appreg.db "INSERT INTO properties (handlerId, name, value) VALUES ('{{qualifiedName}}','memUnloadLevel','150000')"
-	sqlite3 /var/local/appreg.db "INSERT INTO properties (handlerId, name, value) VALUES ('{{qualifiedName}}','memWarnLevel','71680')"
-fi		
+	sqlite3 /var/local/appreg.db "INSERT INTO properties (handlerId, name, value) VALUES ('{{qualifiedName}}','memUnloadLevel','{{memUnloadLevel}}')"
+	{% if memWarnLevel %}
+	sqlite3 /var/local/appreg.db "INSERT INTO properties (handlerId, name, value) VALUES ('{{qualifiedName}}','memWarnLevel','{{memWarnLevel}}')"
+	{% endif %}
+fi
+{% endif %}
 
 progress 50 "Copying {{friendlyName}}"
 echo "--------------------------------" >> $LOG
