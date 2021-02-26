@@ -1,0 +1,117 @@
+# Widget Packaging and Configuration <http://www.w3.org/TR/widgets/>
+# requires common.rnc
+
+elem.widget = element widget {
+    global.attrs ?,
+    global.xml*, 
+    attribute id { xsd:anyURI }?,
+    attribute defaultlocale { text }?,
+    attribute version { text }?,
+    attribute height { data.positiveNumber }?,
+    attribute width { data.positiveNumber }?,
+    attribute viewmodes {
+        list {
+            ( "windowed"
+            | "floating"
+            | "fullscreen"
+            | "maximized"
+            | "minimized" )*
+          }
+    }?,
+    group.widgetContent
+}
+
+group.widgetContent &= elem.name*
+                    & elem.description*
+                    & elem.icon*
+                    & elem.author?
+                    & elem.license*
+                    & elem.content?
+                    & elem.feature*
+                    & elem.preference*
+                    & foreignElement*
+
+elem.name = element name {
+    global.attrs ?,
+    global.xml*, 
+    attribute short { text }?,
+    (elem.span* &
+    foreignElement*)
+}
+
+elem.description = element description {
+    global.attrs ?, 
+	global.xml*,
+    (elem.span* &
+    foreignElement*)
+}
+
+elem.icon = element icon {
+    global.attrs ?,
+    foreignAttribute*,
+    attribute src { xsd:anyURI },
+    attribute height { data.positiveNumber }?,
+    attribute width { data.positiveNumber }?,
+    empty
+}
+
+elem.author = element author {
+    global.attrs ?,
+    global.xml*, 
+    attribute href { xsd:anyURI }?,
+    attribute email { xsd:string { pattern=".+@.+" } }?,
+    (elem.span* &
+    foreignElement*)
+}
+
+elem.license = element license {
+    global.attrs ?,
+    global.xml*, 
+    attribute href { xsd:anyURI }?,
+    (elem.span* &
+    foreignElement*)
+}
+
+elem.content = element content {
+    global.attrs ?,
+    foreignAttribute*,
+    attribute src { xsd:anyURI },
+    attribute type { text }?,
+    attribute encoding { text }?,
+    empty
+}
+
+elem.feature = element feature {
+    global.attrs ?,
+    global.xml*, 
+    attribute name { xsd:anyURI },
+    attribute required { data.boolean }?,
+    ( elem.param*
+    & foreignElement* )
+}
+
+elem.param = element param {
+    global.attrs ?,
+    global.xml*,
+    attribute name { text },
+    attribute value { text },
+    foreignElement*
+}
+
+elem.span = element span {
+    global.attrs ?,
+    global.xml*,
+	(elem.span* &
+    foreignElement*),
+	text
+}
+
+elem.preference = element preference {
+    global.attrs ?,
+    global.xml*, 
+    attribute name { text },
+    attribute value { text }?,
+    attribute readonly { data.boolean }?,
+    foreignElement*
+}
+

@@ -1,0 +1,14 @@
+default namespace widgets = inherit
+namespace local = ""
+
+foreignElement = ( element * - widgets:* { ( anyAttribute | anyElement )* }
+                 | text )
+foreignAttribute = attribute * - (  local:* ) { text }
+anyElement = element * { ( anyAttribute | anyElement )* }
+anyAttribute = attribute * { text }
+
+data.positiveNumber = xsd:string { pattern="[1-9]\d*" }
+data.boolean = ( string "true" | string "false" )
+
+global.attrs = attribute dir {list {( "ltr"| "rtl" | "lro"| "rlo")*}}? 	
+global.xml  = attribute * - ( local:* ) { text } ?

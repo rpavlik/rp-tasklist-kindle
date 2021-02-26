@@ -1,0 +1,13 @@
+# Widget Access Request Policy <http://www.w3.org/TR/widgets-access/>
+# requires common.rnc
+
+group.widgetContent &= elem.access*
+
+elem.access = element access {
+    global.attrs ?,
+    foreignAttribute*,
+    attribute origin { ( xsd:anyURI | string "*" ) },
+    attribute subdomains { data.boolean }?,
+    empty
+}
+

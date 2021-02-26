@@ -1,0 +1,11 @@
+# Widget Updates <http://www.w3.org/TR/widgets-updates/>
+# requires common.rnc
+
+group.widgetContent &= elem.update-description*
+
+elem.update-description = element update-description {
+    foreignAttribute*,
+    attribute href { xsd:anyURI },
+    foreignElement*
+}
+

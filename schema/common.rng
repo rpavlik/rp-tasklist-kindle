@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <define name="foreignElement">
+    <choice>
+      <element>
+        <anyName>
+          <except>
+            <nsName/>
+          </except>
+        </anyName>
+        <zeroOrMore>
+          <choice>
+            <ref name="anyAttribute"/>
+            <ref name="anyElement"/>
+          </choice>
+        </zeroOrMore>
+      </element>
+      <text/>
+    </choice>
+  </define>
+  <define name="foreignAttribute">
+    <attribute>
+      <anyName>
+        <except>
+          <nsName ns=""/>
+        </except>
+      </anyName>
+    </attribute>
+  </define>
+  <define name="anyElement">
+    <element>
+      <anyName/>
+      <zeroOrMore>
+        <choice>
+          <ref name="anyAttribute"/>
+          <ref name="anyElement"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="anyAttribute">
+    <attribute>
+      <anyName/>
+    </attribute>
+  </define>
+  <define name="data.positiveNumber">
+    <data type="string">
+      <param name="pattern">[1-9]\d*</param>
+    </data>
+  </define>
+  <define name="data.boolean">
+    <choice>
+      <value type="string" datatypeLibrary="">true</value>
+      <value type="string" datatypeLibrary="">false</value>
+    </choice>
+  </define>
+  <define name="global.attrs">
+    <optional>
+      <attribute name="dir">
+        <list>
+          <zeroOrMore>
+            <choice>
+              <value>ltr</value>
+              <value>rtl</value>
+              <value>lro</value>
+              <value>rlo</value>
+            </choice>
+          </zeroOrMore>
+        </list>
+      </attribute>
+    </optional>
+  </define>
+  <define name="global.xml">
+    <optional>
+      <attribute>
+        <anyName>
+          <except>
+            <nsName ns=""/>
+          </except>
+        </anyName>
+      </attribute>
+    </optional>
+  </define>
+</grammar>

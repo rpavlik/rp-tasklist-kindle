@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <!--
+    Widget Updates <http://www.w3.org/TR/widgets-updates/>
+    requires common.rnc
+  -->
+  <define name="group.widgetContent" combine="interleave">
+    <zeroOrMore>
+      <ref name="elem.update-description"/>
+    </zeroOrMore>
+  </define>
+  <define name="elem.update-description">
+    <element name="update-description">
+      <zeroOrMore>
+        <ref name="foreignAttribute"/>
+      </zeroOrMore>
+      <attribute name="href">
+        <data type="anyURI"/>
+      </attribute>
+      <zeroOrMore>
+        <ref name="foreignElement"/>
+      </zeroOrMore>
+    </element>
+  </define>
+</grammar>

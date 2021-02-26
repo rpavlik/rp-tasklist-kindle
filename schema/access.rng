@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <!--
+    Widget Access Request Policy <http://www.w3.org/TR/widgets-access/>
+    requires common.rnc
+  -->
+  <define name="group.widgetContent" combine="interleave">
+    <zeroOrMore>
+      <ref name="elem.access"/>
+    </zeroOrMore>
+  </define>
+  <define name="elem.access">
+    <element name="access">
+      <optional>
+        <ref name="global.attrs"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="foreignAttribute"/>
+      </zeroOrMore>
+      <attribute name="origin">
+        <choice>
+          <data type="anyURI"/>
+          <value type="string" datatypeLibrary="">*</value>
+        </choice>
+      </attribute>
+      <optional>
+        <attribute name="subdomains">
+          <ref name="data.boolean"/>
+        </attribute>
+      </optional>
+      <empty/>
+    </element>
+  </define>
+</grammar>
