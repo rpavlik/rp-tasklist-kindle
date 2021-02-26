@@ -3,21 +3,23 @@ namespace kindle = "http://kindle.amazon.com/ns/widget-extensions"
 
 include "widgets.rnc" {
     elem.feature = kindle_api.feature
-    group.widgetContent &= elem.name*
-                    & elem.description*
-                    & elem.icon*
-                    & elem.author?
-                    & elem.license*
-                    & elem.content?
-                    & elem.feature*
-                    & elem.preference*
-                    & kindle.cookiejar*
-                    & kindle.network*
-                    & kindle.permissions*
-                    & kindle.messaging*
-                    & kindle.settings*
-                    & kindle.gestures*
-                    & foreignElement*
+    group.widgetContent &=
+        elem.name*
+        & elem.description*
+        & elem.icon*
+        & elem.author?
+        & elem.license*
+        & elem.content?
+        & elem.feature*
+        & elem.preference*
+        & kindle.cookiejar*
+        & kindle.network*
+        & kindle.permissions*
+        & kindle.messaging*
+        & kindle.settings*
+        & kindle.gestures*
+        & kindle.chrome*
+        & foreignElement*
 }
 kindle_api.feature =
     element feature {
@@ -38,23 +40,41 @@ kindle.cookiejar =
             attribute value { data.boolean }
         }*
     }
+
 kindle.network =
     element kindle:network {
         (element kindle:asset {
-             attribute key { "user-agent" },
-             attribute value { text }
+             (attribute key { "user-agent" },
+              attribute value { text })
+             | (attribute key { "enableWrsProxy" },
+                attribute value { data.boolean })
+             | (attribute key { "http-header" },
+                attribute value { text })
+             | (attribute key { "initialDNS" },
+                attribute value { data.boolean })
+             | (attribute key { "maxConnections" },
+                attribute value { data.positiveNumber })
+             | (attribute key { "maxConnectionsPerHost" },
+                attribute value { data.positiveNumber })
+             | (attribute key { "maxConnectionsPerProxy" },
+                attribute value { data.positiveNumber })
+             | (attribute key { "overrideProxy" },
+                attribute value { text })
+             | (attribute key { "enableCaching" },
+                attribute value { data.boolean })
          }
-         | element kindle:asset {
-               attribute key { "enableWrsProxy" },
-               attribute value { data.boolean }
+         | element kindle:errorPage {
+               attribute src { xsd:anyURI }
            })*
     }
+
 kindle.permissions =
     element kindle:permissions {
         element kindle:permission {
             attribute name { "download-allowed" }
         }*
     }
+
 kindle.messaging =
     element kindle:messaging {
         element kindle:app {
@@ -62,19 +82,27 @@ kindle.messaging =
             attribute value { yes_no }
         }
     }
+
+kindle.chrome =
+    element kindle:chrome {
+        element kindle:asset {
+            attribute key { configureSearchBar },
+            attribute value { "none" | "system" }
+        }
+    }
+
 kindle.settings =
     element kindle:settings {
         element kindle:setting {
-             (
-                 attribute name { "defaultFontSize" },
-             attribute value { data.positiveNumber }
-             ) | (
-                 
-               attribute name { "debug" },
-               attribute value { yes_no }
-             )
-         }*
+            (attribute name { "defaultFontSize" },
+             attribute value { data.positiveNumber })
+            | (attribute name { "debug" },
+               attribute value { yes_no })
+            | (attribute name { "saveContext" },
+               attribute value { yes_no })
+        }*
     }
+
 kindle.gestures =
     element kindle:gestures {
         element kindle:param {
@@ -84,10 +112,19 @@ kindle.gestures =
         }*
     }
 
+kindle.export =
+    element kindle:export {
+        attribute resource { xsd:anyURI }
+    }
+
 id_t = xsd:NCName
 yes_no = "yes" | "no"
+
+# <kindle:param name="tap" value="yes" properties="fire_on_tap:1 max_updown_delta:0"/>
+# <kindle:param name="pinchzoom" value="yes" properties="fire-on-zoom:1"/>
 kindle.gesture_param_names =
-    "drag" | "pinchzoom" | "tap" | "multi_tap" | "hold"
+    "drag" | "pinchzoom" | "tap" | "multi_tap" | "hold" | "swipe"
+
 kindle_api.feature_param_names =
     "appmgr"
     | "chrome"
@@ -98,3 +135,5 @@ kindle_api.feature_param_names =
     | "net"
     | "viewport"
     | "popup"
+    | "dconfig"
+    | "todo"
