@@ -20,6 +20,21 @@ function getData() {
 
 const loadedData = getData();
 
+const escapeSingleQuotes = (s) => {
+    return s.replace("'", "\\'");
+}
+const escapeDoubleQuotes = (s) => {
+    return s.replace('"', '\\"');
+}
+const escapeAllQuotes = (s) => {
+    return escapeDoubleQuotes(escapeSingleQuotes(s));
+}
+const addEscapeFilters = (env) => {
+    env.addFilter('escapeSingleQuotes', escapeSingleQuotes);
+    env.addFilter('escapeDoubleQuotes', escapeDoubleQuotes);
+    env.addFilter('escapeAllQuotes', escapeAllQuotes);
+}
+
 function cleanTask(cb) {
     cleanDir(outDir);
     cb();
@@ -31,7 +46,12 @@ const scriptTemplatesTask = () => {
         .pipe(nunjucksRender({
             path: [templatesDir],
             ext: '',
-            data: loadedData
+            data: loadedData,
+            manageEnv: addEscapeFilters,
+            env: {
+                autoescape: false,
+                throwOnUndefined: true
+            }
         }))
         // .pipe(data(loadedData))
         .pipe(rename(function (path) {
@@ -47,14 +67,25 @@ const appTemplatesTask = () => {
         .pipe(nunjucksRender({
             path: [templatesDir],
             ext: '',
-            data: loadedData
+            data: loadedData,
+            manageEnv: addEscapeFilters,
+            env: {
+                autoescape: false,
+                throwOnUndefined: true
+            }
         }))
         // output files in app folder
         .pipe(dest(`${outDir}/${loadedData['shortName']}`));
 }
 
+const extensionZipTask = () => {
+    return src(`${outDir}/extensions/${loadedData['shortName']}/{,**/}*`, { base: outDir })
+        .pipe(zip(`kual_extension_${loadedData['shortName']}_v${loadedData['version']}.zip`))
+        .pipe(dest(`${outDir}`));
+}
+
 const appZipTask = () => {
-    return src(`${outDir}/${loadedData['shortName']}/{,**/}*`, { base: outDir })
+    return src(`${outDir}/extensions/${loadedData['shortName']}/{,**/}*`, { base: `${outDir}/extensions` })
         .pipe(zip(`${loadedData['shortName']}.zip`))
         .pipe(dest(`${outDir}/Install`));
 }
@@ -86,7 +117,6 @@ const kindleToolInstall = (cb) => {
             '-d', 'kindle5',
             `${shortName}_install.ffs`,
             `${shortName}.zip`,
-            `${shortName}_event_handler.conf`,
             `update_${shortName}_v${version}_install.bin`
         ], cb);
 }
@@ -104,5 +134,12 @@ const kindleToolUninstall = (cb) => {
             `update_${shortName}_v${version}_uninstall.bin`
         ], cb);
 }
-exports.default = series(parallel(scriptTemplatesTask, appTemplatesTask), appZipTask, kindleToolUninstall, kindleToolInstall);
+exports.default = series(
+    parallel(scriptTemplatesTask, appTemplatesTask),
+
+    // For a regular KUAL extension
+    extensionZipTask,
+
+    // For a MRPI installable bin file
+    appZipTask, kindleToolUninstall, kindleToolInstall);
 exports.clean = cleanTask;

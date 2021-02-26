@@ -11,7 +11,7 @@
   },
   "targets": {
     "app": {
-      "distDir": "./dist/rptasklist/bin"
+      "distDir": "./dist/extensions/rptasklist/bin"
     }
   },
   "author": "",

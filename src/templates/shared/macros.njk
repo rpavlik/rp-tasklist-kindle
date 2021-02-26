@@ -1,0 +1,40 @@
+{#
+Copyright (c) 2021 Ryan Pavlik <ryan.pavlik@gmail.com>
+SPDX-License-Identifier: MIT
+#}
+
+{% macro sqlite_appreg() -%}
+sqlite3 /var/local/appreg.db
+{%- endmacro %}
+
+{% macro sqlite_appreg_sql(sql) -%}
+{{ sqlite_appreg() }} "{{sql}}"
+{%- endmacro %}
+
+{% macro installdir(app) -%}
+/mnt/us/extensions/{{app | default(shortName)}}
+{%- endmacro %}
+
+{% macro appreg_register_app(appId) -%}
+{{sqlite_appreg()}} "INSERT OR IGNORE handlerIds VALUES ('{{ appId | default(qualifiedName)}}')"
+{%- endmacro %}
+
+{% macro appreg_insert_or_replace_properties(name, value, appId) -%}
+{{sqlite_appreg()}} "INSERT OR REPLACE INTO properties VALUES ('{{appId | default(qualifiedName)}}', '{{name}}', '{{value | escapeAllQuotes}}')"
+{%- endmacro %}
+
+{%- macro appreg_register_command(command) %}
+{{ appreg_insert_or_replace_properties('command', command)}}
+{%- endmacro %}
+
+{%- macro appreg_set_unload_policy(value = 'unloadOnPause') %}
+{{ appreg_insert_or_replace_properties('unloadPolicy', value)}}
+{%- endmacro %}
+
+{% macro mesquite_launch_command(appId = undefined, dir = undefined, app = undefined) -%}
+/usr/bin/mesquite -l {{appId | default(qualifiedName)}} -c {{dir | default(installdir(app) + '/bin')}}
+{%- endmacro %}
+
+{% macro lipc_start_app(appId) -%}
+lipc-set-prop com.lab126.appmgrd start app://{{appId | default(qualifiedName)}}
+{%- endmacro %}

@@ -3,5 +3,6 @@
     "shortName": "rptasklist",
     "qualifiedName": "com.ryanpavlik.kindle.rptasklist",
     "author": "rpavlik",
-    "version": "1.0"
+    "version": "1.0",
+    "startScript": "/mnt/us/extensions/rptasklist/bin/start.sh"
 }

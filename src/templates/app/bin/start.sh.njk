@@ -1,0 +1,17 @@
+{% extends "shared/base.ffs.njk" %}
+{#
+Copyright (c) 2021 Ryan Pavlik <ryan.pavlik@gmail.com>
+SPDX-License-Identifier: MIT
+#}
+{%
+from 'shared/macros.njk' import appreg_register_app, appreg_register_command, installdir, mesquite_launch_command, appreg_set_unload_on_pause, lipc_start_me with context 
+%}
+{% block body %}
+{{ super() }}
+
+{{ appreg_register_app() }}
+{{ appreg_register_command(mesquite_launch_command(installdir() + '/bin'))}}
+{{ appreg_set_unload_on_pause() }}
+
+{{ lipc_start_me() }}
+{% endblock %}

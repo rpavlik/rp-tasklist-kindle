@@ -1,26 +1,17 @@
-#!/bin/sh
-OTA=com.lab126.blanket.ota
-LOCALSTORAGE=/mnt/us/extensions/{{shortName}}/bin/resource/LocalStorage/file__0.localstorage
-DOCS="/mnt/us/documents/{{friendlyName}}"
-INSTALLDIR="/mnt/us/extensions/{{shortName}}"
-UPSTART="/etc/upstart/{{shortName}}_event_handler.conf"
-{# Based on script included with Komic, made a template by Ryan Pavlik rpavlik #}
+#!/bin/bash
+{#
+Copyright (c) 2021 Ryan Pavlik <ryan.pavlik@gmail.com>
+SPDX-License-Identifier: MIT
+#}
+{% from "shared/macros.njk" import installdir with context %}
+{% block installdir_var %}
+INSTALLDIR="{{installdir()}}"
+{% endblock %}
 
-progress()
-{
-	lipc-send-event $OTA otaSplashProgress -i $1
-	local x=48
-	local y=11
-	eips 0 $y "                                                ";
-	eips $((($x - $(expr length "$2")) / 2)) $y "$2"
-	sleep 3
-}
+{% block logvar %}
+LOG="/mnt/us/{{shortName}}_log.txt"
+{% endblock %}
 
-fail()
-{
-	lipc-send-event $OTA otaSplashError -s "${1}"
-	sleep 10
-	exit 1;
-}
 
-{% block body %}{% endblock %}
+{% block body %}
+{% endblock %}
