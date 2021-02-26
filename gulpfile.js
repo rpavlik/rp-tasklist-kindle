@@ -21,9 +21,16 @@ function getData() {
 const loadedData = getData();
 
 const escapeSingleQuotes = (s) => {
+    if (s === undefined) {
+        return "undefined";
+    }
     return s.replace("'", "\\'");
 }
 const escapeDoubleQuotes = (s) => {
+    if (s === undefined) {
+        return "undefined";
+    }
+    // return s;
     return s.replace('"', '\\"');
 }
 const escapeAllQuotes = (s) => {
@@ -75,7 +82,7 @@ const appTemplatesTask = () => {
             }
         }))
         // output files in app folder
-        .pipe(dest(`${outDir}/${loadedData['shortName']}`));
+        .pipe(dest(`${outDir}/extensions/${loadedData['shortName']}`));
 }
 
 const extensionZipTask = () => {
@@ -94,7 +101,7 @@ const { spawn } = require('child_process');
 
 const runKindleTool = (cwd, args, cb) => {
 
-    const kindletool = spawn('../../kindletool/kindletool',
+    const kindletool = spawn(process.cwd() + '/kindletool/kindletool',
         args,
         {
             cwd: cwd,
@@ -141,5 +148,6 @@ exports.default = series(
     extensionZipTask,
 
     // For a MRPI installable bin file
-    appZipTask, kindleToolUninstall, kindleToolInstall);
+    // appZipTask, kindleToolUninstall, kindleToolInstall
+    );
 exports.clean = cleanTask;

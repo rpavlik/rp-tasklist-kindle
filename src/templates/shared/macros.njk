@@ -8,27 +8,28 @@ sqlite3 /var/local/appreg.db
 {%- endmacro %}
 
 {% macro sqlite_appreg_sql(sql) -%}
-{{ sqlite_appreg() }} "{{sql}}"
+{{ sqlite_appreg() }} "{{sql | escapeDoubleQuotes}}"
 {%- endmacro %}
 
 {% macro installdir(app) -%}
 /mnt/us/extensions/{{app | default(shortName)}}
 {%- endmacro %}
 
-{% macro appreg_register_app(appId) -%}
-{{sqlite_appreg()}} "INSERT OR IGNORE handlerIds VALUES ('{{ appId | default(qualifiedName)}}')"
+{% macro appreg_sql_register_app(appId) -%}
+INSERT OR IGNORE INTO handlerIds VALUES ('{{ appId | default(qualifiedName)}}')
 {%- endmacro %}
 
-{% macro appreg_insert_or_replace_properties(name, value, appId) -%}
-{{sqlite_appreg()}} "INSERT OR REPLACE INTO properties VALUES ('{{appId | default(qualifiedName)}}', '{{name}}', '{{value | escapeAllQuotes}}')"
+{% macro appreg_sql_insert_or_replace_properties(appId, name, value) -%}
+INSERT OR REPLACE INTO properties VALUES ('{{appId | default(qualifiedName)}}', '{{name}}', '{{value | escapeSingleQuotes}}')
 {%- endmacro %}
 
-{%- macro appreg_register_command(command) %}
-{{ appreg_insert_or_replace_properties('command', command)}}
+
+{%- macro appreg_sql_register_command(appId, appCommand) %}
+{{ appreg_sql_insert_or_replace_properties(appId=appId, name='command', value=appCommand)}}
 {%- endmacro %}
 
-{%- macro appreg_set_unload_policy(value = 'unloadOnPause') %}
-{{ appreg_insert_or_replace_properties('unloadPolicy', value)}}
+{%- macro appreg_sql_set_unload_policy(value) %}
+{{ appreg_sql_insert_or_replace_properties(appId=qualifiedName, name='unloadPolicy', value=(value | default('unloadOnPause')))}}
 {%- endmacro %}
 
 {% macro mesquite_launch_command(appId = undefined, dir = undefined, app = undefined) -%}
