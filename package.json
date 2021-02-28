@@ -37,8 +37,10 @@
     "gulp-zip": "^5.0.2",
     "gulplog": "^1.0.0",
     "parcel": "^2.0.0-nightly.608",
-    "tslib": "^1.14.1",
-    "typescript": "^4.1.0"
+    "postcss": "^8.2.6",
+    "postcss-import": "^14.0.0",
+    "postcss-url": "^10.1.1",
+    "postcss-preset-env": "^6.7.0"
   },
   "dependencies": {
     "purecss": "^2.0.5"
