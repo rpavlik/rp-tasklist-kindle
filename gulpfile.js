@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable require-jsdoc */
 // Copyright 2020, 2021 Ryan Pavlik <ryan.pavlik@gmail.com>
 // SPDX-License-Identifier: MIT
@@ -8,7 +7,6 @@ const nunjucksRender = require('gulp-nunjucks-render');
 const fs = require('fs');
 const cleanDir = require('gulp-clean-dir');
 const zip = require('gulp-zip');
-const { createReturn } = require("typescript");
 
 const templatesDir = 'src/templates';
 const appTemplates = `${templatesDir}/app/**/*.njk`;
