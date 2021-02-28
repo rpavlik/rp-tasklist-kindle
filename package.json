@@ -4,9 +4,9 @@
   "description": "Ryan's task list tool for Kindle (WAF)",
   "app": "./src/app/index.html",
   "scripts": {
-    "clean": "npx gulp clean",
-    "build": "npx parcel build ./src/app/index.html && npx gulp",
-    "serve": "npx parcel serve ./src/app/index.html",
+    "clean": "gulp clean",
+    "build": "parcel build ./src/app/index.html --no-optimize --public-url '.' && gulp",
+    "serve": "parcel serve ./src/app/index.html",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "targets": {
@@ -39,10 +39,12 @@
     "parcel": "^2.0.0-nightly.608",
     "postcss": "^8.2.6",
     "postcss-import": "^14.0.0",
-    "postcss-url": "^10.1.1",
-    "postcss-preset-env": "^6.7.0"
+    "postcss-preset-env": "^6.7.0",
+    "postcss-url": "^10.1.1"
   },
   "dependencies": {
-    "purecss": "^2.0.5"
+    "jquery": "^1.5.0",
+    "purecss": "^2.0.5",
+    "whatwg-fetch": "^3.6.2"
   }
 }
