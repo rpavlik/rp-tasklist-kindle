@@ -19,7 +19,6 @@
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.13.1",
-    "@babel/plugin-transform-typescript": "^7.13.0",
     "@babel/preset-env": "^7.13.5",
     "@parcel/optimizer-cssnano": "^2.0.0-nightly.610",
     "@parcel/optimizer-htmlnano": "^2.0.0-nightly.610",
