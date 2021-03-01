@@ -1,4 +1,5 @@
 
+'use strict';
 // function doStuffOnLoad() {
 //     if (typeof kindle !== 'undefined') {
 
@@ -34,7 +35,21 @@
 //     })
 // }
 
+import $ from "jquery";
+
 // doStuffOnLoad();
 if (typeof kindle !== 'undefined') {
+}
+
+$.getJSON('http://192.168.1.150:1880/office/tasks', function (data) {
     document.getElementById("c").innerHTML = "gotcha from inside a script!";
-  }
+    var items = [];
+    $.each(data, function (i, val) {
+        items.push(`<li>${val}</li>`)
+    });
+
+    $("<ul/>", {
+        "class": "my-new-list",
+        html: items.join("")
+    }).appendTo("body");
+})
