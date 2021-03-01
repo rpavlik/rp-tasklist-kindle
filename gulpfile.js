@@ -19,23 +19,19 @@ const cleanTask = (cb) => {
     cb();
 }
 
-const appTemplatesTask = task("appTemplates", makeAppTemplateTask({
+const appTemplatesTask = makeAppTemplateTask({
     appTemplates,
     templatesDir,
     loadedData,
     outDir
-}));
-const extensionZipTask = task("extensionZip", makeExtensionZipTask({
+});
+task("appTemplates", appTemplatesTask);
+const extensionZipTask =  makeExtensionZipTask({
     shortName: loadedData['shortName'],
     version: loadedData['version'],
     outDir: outDir
-}));
-
-const extensionZipTask = () => {
-    return src(`${outDir}/extensions/${loadedData['shortName']}/{,**/}*`, { base: outDir })
-        .pipe(zip(`kual_extension_${loadedData['shortName']}_v${loadedData['version']}.zip`))
-        .pipe(dest(`${outDir}`));
-}
+});
+task("extensionZip", extensionZipTask);
 
 exports.default = series(
     // appTemplatesTask,

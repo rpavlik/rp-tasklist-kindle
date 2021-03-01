@@ -9,6 +9,9 @@
         "kindle": "readonly",
         "Kindle": "readonly"
     },
+    "parserOptions": {
+        "sourceType": "module"
+    },
     "rules": {
     }
 }
