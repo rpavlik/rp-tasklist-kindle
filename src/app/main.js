@@ -114,7 +114,7 @@ window.app = {
         $.getJSON('http://192.168.1.150:1880/office/tasks', (data) => {
             window.app.populateData(data);
             data.active = '';
-            logging.info(`Storing tasks: ${data}`);
+            logging.info(`Storing tasks: ${JSON.stringify(data)}`);
             localStorage.setItem(tasksKey, JSON.stringify(data));
         })
     },
