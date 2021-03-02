@@ -30,9 +30,9 @@ const activeMenuClass = 'pure-menu-selected';
 const tasksKey = 'tasks';
 const logKey = 'log';
 
-const getKindleLogger = () => kindle.dev.log;
-
-const doLog = (typeof kindle !== 'undefined') ? getKindleLogger() : console.log;
+const doLog = (typeof kindle !== 'undefined') ?
+    ((msg) => { kindle.dev.log({ event: "log", msg: msg, level: "info" }) })
+    : console.log;
 
 class LogItem {
     constructor({ timestamp, task }) {

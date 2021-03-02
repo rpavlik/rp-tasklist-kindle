@@ -1,35 +1,45 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <!-- these are file urls to keep parcel from trying to find them. -->
-  <script type="text/javascript" src="file:///var/local/mesquite/shared/javascripts/Kindle.js"></script>	
-  <script type="text/javascript" src="file:///var/local/mesquite/shared/javascripts/logging.js"></script> 
-  <script type="text/javascript" src="file:///var/local/mesquite/shared/javascripts/eventing.js"></script> 
+  <script type="text/javascript" src="file:///var/local/mesquite/shared/javascripts/Kindle.js"></script>
+  <script type="text/javascript" src="file:///var/local/mesquite/shared/javascripts/logging.js"></script>
+  <script type="text/javascript" src="file:///var/local/mesquite/shared/javascripts/eventing.js"></script>
   <script type="text/javascript" src="file:///var/local/mesquite/shared/javascripts/object.js"></script>
   <script type="text/javascript" src="file:///var/local/mesquite/shared/javascripts/storage.js"></script>
   <script type="text/javascript" src="file:///var/local/mesquite/shared/javascripts/applicationManager.js"></script>
-  
+
   <title>App</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="stylesheet" href="./scss/app.scss">
 </head>
+
 <body>
-<div class="main">
-  <a class="pure-button" id="refreshtasks" href="#">Refresh tasks</a>
-  <h1>Task List</h1> 
-  <div id="stuff" class="pure-menu">tasks loading...</div>
-  <div>
-    <h2>Log</h2>
-    <ul id="log">
+  <div class="main">
+    <div class="pure-g">
+      <div class="pure-thirds">
+        <a class="pure-button" id="refreshtasks" href="#">Refresh tasks</a>
+      </div>
+      <div id="submitting" class="pure-thirds" style="display: none;">Submitting data to server...</div>
+      <div class="pure-thirds">
+        <button id="stopTask" title="Stop Task">Stop</button>
+      </div>
 
-    </ul>
+    </div>
+    <h1>Task List</h1>
+    <div id="stuff" class="pure-menu">tasks loading...</div>
+    <div>
+      <h2>Log</h2>
+      <ul id="log">
+
+      </ul>
+    </div>
   </div>
-  <div id="submitting" style="display: none;">Submitting data to server...</div>
-  8
-</div>
 
-<script src="./main.js"></script>
+  <script src="./main.js"></script>
 
 </body>
+
 </html>
