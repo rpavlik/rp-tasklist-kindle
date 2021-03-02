@@ -23,10 +23,6 @@ import 'core-js/features/object';
 import { logging } from "./logging";
 import KindleApp, { ConnectionType, PromptLevel, ConnectionResult } from "./kindle";
 
-function handleClick(val) {
-    window.app.setActive(val)
-}
-
 const activeButtonClass = 'pure-button-active';
 const activeMenuClass = 'pure-menu-selected';
 const tasksKey = 'tasks';
@@ -48,7 +44,7 @@ class LogItem {
     }
 }
 
-window.app = {
+const app = {
     kindle: KindleApp(),
     menuElts: new Map(),
     buttons: new Map(),
@@ -79,7 +75,7 @@ window.app = {
         this.appendToLog(new LogItem({ task: taskName, timestamp: null }));
         this.setStatus('submitting...')
         $.post('http://192.168.1.150:1880/office/tasks/active', { active: taskName }, () => {
-            window.app.clearStatus();
+            app.clearStatus();
         })
 
     },
@@ -107,7 +103,7 @@ window.app = {
                 const button = $('<button/>', {
                     class: 'pure-button',
                     text: val,
-                    click: function () { handleClick(val) },
+                    click: () => { app.setActive(val) },
                 });
                 this.buttons.set(val, button);
                 if (val == activeTask) {
@@ -125,8 +121,8 @@ window.app = {
         this.setStatus('fetching...')
         const doFetch = () => {
             $.getJSON('http://192.168.1.150:1880/office/tasks', (data) => {
-                window.app.populateData(data);
-                window.app.clearStatus();
+                app.populateData(data);
+                app.clearStatus();
                 data.active = '';
                 logging.info(`Storing tasks: ${JSON.stringify(data)}`);
                 localStorage.setItem(tasksKey, JSON.stringify(data));
@@ -139,7 +135,7 @@ window.app = {
                 if (result == ConnectionResult.success) {
                     doFetch();
                 } else {
-                    window.app.setStatus('could not connect to wifi to fetch...');
+                    app.setStatus('could not connect to wifi to fetch...');
                 }
             })
         }
@@ -173,19 +169,21 @@ window.app = {
 
 }
 
-$('#refreshtasks').on('click', function () { window.app.fetch() });
-$('#stopTask').on('click', function () { window.app.setActive('stop') });
+$('#refreshtasks').on('click', function () { app.fetch() });
+$('#stopTask').on('click', function () { app.setActive('stop') });
 (() => {
     const storedTasks = localStorage.getItem(tasksKey);
     if (storedTasks !== null) {
         const taskData = JSON.parse(storedTasks);
         taskData.active = '';
-        window.app.populateData(taskData);
+        app.populateData(taskData);
 
         const storedLog = localStorage.getItem(logKey);
         if (storedLog !== null) {
-            window.app.populateLog(JSON.parse(storedLog));
+            app.populateLog(JSON.parse(storedLog));
         }
     }
-    window.app.fetch();
+    app.fetch();
 })();
+
+window.app = app;
