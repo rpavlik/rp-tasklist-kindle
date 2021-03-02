@@ -4,8 +4,21 @@
 @import '../../../node_modules/purecss/build/buttons.css';
 @import '../../../node_modules/purecss/build/menus.css';
 
+$bordersize: 0.1em;
+
 .main {
     padding: 1em;
     width: 100%;
     box-sizing: border-box;
+}
+
+.pure-menu-link {
+    margin: $bordersize * 5;
+    box-sizing:content-box;
+}
+
+.pure-menu-selected {
+    border: solid;
+    border-radius: $bordersize * 4;
+    border-width: $bordersize;
 }
