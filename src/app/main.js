@@ -77,6 +77,7 @@ window.app = {
     },
 
     fetch: function () {
+        $('#stuff').html("tasks loading, please wait");
         $.getJSON('http://192.168.1.150:1880/office/tasks', (data) => {
             window.app.populateData(data);
         })
@@ -84,6 +85,6 @@ window.app = {
 
 }
 
-
+$('#refreshtasks').on('click', function() { window.app.fetch() });
 
 window.app.fetch();
