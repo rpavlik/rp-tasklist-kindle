@@ -36,20 +36,72 @@
 // }
 
 import $ from "jquery";
+import 'core-js/features/map';
+import 'core-js/features/object';
 
-// doStuffOnLoad();
-if (typeof kindle !== 'undefined') {
+function handleClick(val) {
+    $.post('http://192.168.1.150:1880/office/tasks/active', { active: val }, () => {
+        window.app.setActive(val)
+    })
 }
 
-$.getJSON('http://192.168.1.150:1880/office/tasks', function (data) {
-    document.getElementById("c").innerHTML = "gotcha from inside a script!";
-    var items = [];
-    $.each(data, function (i, val) {
-        items.push(`<li>${val}</li>`)
-    });
+const activeButtonClass = 'pure-button-active';
+const activeMenuClass = 'pure-menu-selected';
+window.app = {
+    menuElts: new Map(),
+    buttons: new Map(),
+    setActive: function (taskName) {
+        for (const button of this.buttons.values()) {
+            $(button).removeClass(activeButtonClass);
+        }
+        for (const elt of this.menuElts.values()) {
+            $(elt).removeClass(activeMenuClass);
+        }
+        if (this.buttons.has(taskName)) {
+            $(this.buttons.get(taskName)).addClass(activeButtonClass);
+            $(this.menuElts.get(taskName)).addClass(activeMenuClass);
+        }
+    },
+    populateData: function (data) {
+        const dataMap = new Map(Object.entries(data))
+        const rawItems = dataMap.get('tasks');
 
-    $("<ul/>", {
-        "class": "my-new-list",
-        html: items.join("")
-    }).appendTo("body");
-})
+        const activeTask = dataMap.has('active') ? dataMap.get('active') : '';
+
+        this.menuElts.clear();
+        this.buttons.clear();
+        const list = $("<ul/>", {
+            "class": "pure-menu-list"
+        });
+        for (const val of rawItems) {
+            const elt = $("<li/>", {
+                class: "pure-menu-link",
+            });
+            this.menuElts.set(val, elt);
+            const button = $('<button/>', {
+                class: 'pure-button',
+                text: val,
+                click: function () { handleClick(val) },
+            });
+            this.buttons.set(val, button);
+            if (val == activeTask) {
+                elt.addClass(activeMenuClass);
+                button.addClass(activeButtonClass);
+            }
+            elt.append(button);
+            list.append(elt);
+        }
+        $('#stuff').html(list);
+    },
+
+    fetch: function () {
+        $.getJSON('http://192.168.1.150:1880/office/tasks', (data) => {
+            window.app.populateData(data);
+        })
+    }
+
+}
+
+
+
+window.app.fetch();
