@@ -13,8 +13,9 @@ $bordersize: 0.1em;
 }
 
 .pure-menu-link {
-    margin: $bordersize * 5;
-    box-sizing:content-box;
+    margin-top: $bordersize * 2;
+    margin-bottom: $bordersize * 2;
+    box-sizing: content-box;
 }
 
 .pure-menu-selected {
