@@ -22,27 +22,56 @@ import 'core-js/features/map';
 import 'core-js/features/object';
 
 function handleClick(val) {
-    $.post('http://192.168.1.150:1880/office/tasks/active', { active: val }, () => {
-        window.app.setActive(val)
-    })
+    window.app.setActive(val)
 }
 
 const activeButtonClass = 'pure-button-active';
 const activeMenuClass = 'pure-menu-selected';
+const tasksKey = 'tasks';
+const logKey = 'log';
+
+const getKindleLogger = () => kindle.dev.log;
+
+const doLog = (typeof kindle !== 'undefined') ? getKindleLogger() : console.log;
+
+class LogItem {
+    constructor({ timestamp, task }) {
+
+        if (!timestamp) {
+            timestamp = Date.now();
+        }
+        new Date(timestamp);
+        this.timestamp = timestamp;
+        this.task = task;
+    }
+
+    getTimestampString() {
+        return new Date(this.timestamp).toTimeString();
+    }
+}
+
 window.app = {
     menuElts: new Map(),
     buttons: new Map(),
+    logData: new Array(),
     setActive: function (taskName) {
+        if (!this.buttons.has(taskName)) {
+            return;
+        }
         for (const button of this.buttons.values()) {
             $(button).removeClass(activeButtonClass);
         }
         for (const elt of this.menuElts.values()) {
             $(elt).removeClass(activeMenuClass);
         }
-        if (this.buttons.has(taskName)) {
-            $(this.buttons.get(taskName)).addClass(activeButtonClass);
-            $(this.menuElts.get(taskName)).addClass(activeMenuClass);
-        }
+        $(this.buttons.get(taskName)).addClass(activeButtonClass);
+        $(this.menuElts.get(taskName)).addClass(activeMenuClass);
+        this.appendToLog(new LogItem({ task: taskName, timestamp: null }));
+        $('#submitting').show();
+        $.post('http://192.168.1.150:1880/office/tasks/active', { active: taskName }, () => {
+            $('#submitting').hide();
+        })
+
     },
     populateData: function (data) {
         const dataMap = new Map(Object.entries(data))
@@ -80,11 +109,49 @@ window.app = {
         $('#stuff').html("tasks loading, please wait");
         $.getJSON('http://192.168.1.150:1880/office/tasks', (data) => {
             window.app.populateData(data);
+            localStorage.setItem(tasksKey, JSON.stringify(data));
         })
+    },
+
+    appendToLog: function (logItem) {
+        const elt = $("<li/>");
+        elt.append($("<b/>", { text: `${logItem.getTimestampString()}:` }));
+        elt.append(` ${logItem.task}`);
+        $("#log").append(elt);
+        this.logData.push(logItem);
+        this.storeLog();
+    },
+
+    populateLog: function (logData) {
+        for (const val of logData) {
+            try {
+                const item = new LogItem({ timestamp: val.timestamp, task: val.task });
+                this.appendToLog(item);
+            } catch (e) {
+                console.log(`Could not parse log item ${val}`);
+            }
+        }
+        this.storeLog();
+    },
+
+    storeLog: function () {
+        doLog(this.logData);
+        console.log(this.logData);
+        localStorage.setItem(logKey, JSON.stringify(this.logData));
     }
 
 }
 
-$('#refreshtasks').on('click', function() { window.app.fetch() });
+$('#refreshtasks').on('click', function () { window.app.fetch() });
+(() => {
+    const storedTasks = localStorage.getItem(tasksKey);
+    if (storedTasks !== null) {
+        window.app.populateData(JSON.parse(storedTasks));
 
-window.app.fetch();
+        const storedLog = localStorage.getItem(logKey);
+        if (storedLog !== null) {
+            window.app.populateLog(JSON.parse(storedLog));
+        }
+    }
+    window.app.fetch();
+})();
