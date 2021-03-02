@@ -21,6 +21,7 @@ import $ from "jquery";
 import 'core-js/features/map';
 import 'core-js/features/object';
 import { logging } from "./logging";
+import KindleApp, { ConnectionType, PromptLevel, ConnectionResult } from "./kindle";
 
 function handleClick(val) {
     window.app.setActive(val)
@@ -48,9 +49,20 @@ class LogItem {
 }
 
 window.app = {
+    kindle: KindleApp(),
     menuElts: new Map(),
     buttons: new Map(),
     logData: new Array(),
+
+    setStatus: function (status) {
+        $('#status').text(status);
+        logging.info(`Setting status field to "${status}"`);
+    },
+
+    clearStatus: function () {
+        $('#status').text('');
+        logging.info('Clearing status field');
+    },
     setActive: function (taskName) {
         for (const button of this.buttons.values()) {
             $(button).removeClass(activeButtonClass);
@@ -65,9 +77,9 @@ window.app = {
             $(this.menuElts.get(taskName)).addClass(activeMenuClass);
         }
         this.appendToLog(new LogItem({ task: taskName, timestamp: null }));
-        $('#submitting').show();
+        this.setStatus('submitting...')
         $.post('http://192.168.1.150:1880/office/tasks/active', { active: taskName }, () => {
-            $('#submitting').hide();
+            window.app.clearStatus();
         })
 
     },
@@ -110,13 +122,27 @@ window.app = {
     },
 
     fetch: function () {
-        $('#stuff').html("tasks loading, please wait");
-        $.getJSON('http://192.168.1.150:1880/office/tasks', (data) => {
-            window.app.populateData(data);
-            data.active = '';
-            logging.info(`Storing tasks: ${JSON.stringify(data)}`);
-            localStorage.setItem(tasksKey, JSON.stringify(data));
-        })
+        this.setStatus('fetching...')
+        const doFetch = () => {
+            $.getJSON('http://192.168.1.150:1880/office/tasks', (data) => {
+                window.app.populateData(data);
+                window.app.clearStatus();
+                data.active = '';
+                logging.info(`Storing tasks: ${JSON.stringify(data)}`);
+                localStorage.setItem(tasksKey, JSON.stringify(data));
+            })
+        };
+        if (this.kindle.net.getActiveInterface() == ConnectionType.wifi) {
+            doFetch();
+        } else {
+            this.kindle.net.ensureWifiConnection(PromptLevel.all, (result) => {
+                if (result == ConnectionResult.success) {
+                    doFetch();
+                } else {
+                    window.app.setStatus('could not connect to wifi to fetch...');
+                }
+            })
+        }
     },
 
     appendToLog: function (logItem) {
