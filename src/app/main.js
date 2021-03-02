@@ -106,6 +106,7 @@ window.app = {
         $('#stuff').html("tasks loading, please wait");
         $.getJSON('http://192.168.1.150:1880/office/tasks', (data) => {
             window.app.populateData(data);
+            data.active = '';
             logging.info(`Storing tasks: ${data}`);
             localStorage.setItem(tasksKey, JSON.stringify(data));
         })
@@ -143,7 +144,9 @@ $('#refreshtasks').on('click', function () { window.app.fetch() });
 (() => {
     const storedTasks = localStorage.getItem(tasksKey);
     if (storedTasks !== null) {
-        window.app.populateData(JSON.parse(storedTasks));
+        const taskData = JSON.parse(storedTasks);
+        taskData.active = '';
+        window.app.populateData(taskData);
 
         const storedLog = localStorage.getItem(logKey);
         if (storedLog !== null) {
