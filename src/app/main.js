@@ -52,17 +52,18 @@ window.app = {
     buttons: new Map(),
     logData: new Array(),
     setActive: function (taskName) {
-        if (!this.buttons.has(taskName)) {
-            return;
-        }
         for (const button of this.buttons.values()) {
             $(button).removeClass(activeButtonClass);
         }
         for (const elt of this.menuElts.values()) {
             $(elt).removeClass(activeMenuClass);
         }
-        $(this.buttons.get(taskName)).addClass(activeButtonClass);
-        $(this.menuElts.get(taskName)).addClass(activeMenuClass);
+        if (this.buttons.has(taskName)) {
+            $(this.buttons.get(taskName)).addClass(activeButtonClass);
+        }
+        if (this.menuElts.has(taskName)) {
+            $(this.menuElts.get(taskName)).addClass(activeMenuClass);
+        }
         this.appendToLog(new LogItem({ task: taskName, timestamp: null }));
         $('#submitting').show();
         $.post('http://192.168.1.150:1880/office/tasks/active', { active: taskName }, () => {
@@ -82,22 +83,28 @@ window.app = {
             "class": "pure-menu-list"
         });
         for (const val of rawItems) {
-            const elt = $("<li/>", {
-                class: "pure-menu-link",
-            });
-            this.menuElts.set(val, elt);
-            const button = $('<button/>', {
-                class: 'pure-button',
-                text: val,
-                click: function () { handleClick(val) },
-            });
-            this.buttons.set(val, button);
-            if (val == activeTask) {
-                elt.addClass(activeMenuClass);
-                button.addClass(activeButtonClass);
+            if (val == 'stop') {
+                // We pull this out separately
+                const button = $('#stopTask');
+                this.buttons.set(val, button);
+            } else {
+                const elt = $("<li/>", {
+                    class: "pure-menu-link",
+                });
+                this.menuElts.set(val, elt);
+                const button = $('<button/>', {
+                    class: 'pure-button',
+                    text: val,
+                    click: function () { handleClick(val) },
+                });
+                this.buttons.set(val, button);
+                if (val == activeTask) {
+                    elt.addClass(activeMenuClass);
+                    button.addClass(activeButtonClass);
+                }
+                elt.append(button);
+                list.append(elt);
             }
-            elt.append(button);
-            list.append(elt);
         }
         $('#stuff').html(list);
     },
@@ -141,6 +148,7 @@ window.app = {
 }
 
 $('#refreshtasks').on('click', function () { window.app.fetch() });
+$('#stopTask').on('click', function () { window.app.setActive('stop') });
 (() => {
     const storedTasks = localStorage.getItem(tasksKey);
     if (storedTasks !== null) {
