@@ -20,6 +20,7 @@
 import $ from "jquery";
 import 'core-js/features/map';
 import 'core-js/features/object';
+import { logging } from "./logging";
 
 function handleClick(val) {
     window.app.setActive(val)
@@ -29,10 +30,6 @@ const activeButtonClass = 'pure-button-active';
 const activeMenuClass = 'pure-menu-selected';
 const tasksKey = 'tasks';
 const logKey = 'log';
-
-const doLog = (typeof kindle !== 'undefined') ?
-    ((msg) => { kindle.dev.log({ event: "log", msg: msg, level: "info" }) })
-    : console.log;
 
 class LogItem {
     constructor({ timestamp, task }) {
@@ -109,6 +106,7 @@ window.app = {
         $('#stuff').html("tasks loading, please wait");
         $.getJSON('http://192.168.1.150:1880/office/tasks', (data) => {
             window.app.populateData(data);
+            logging.info(`Storing tasks: ${data}`);
             localStorage.setItem(tasksKey, JSON.stringify(data));
         })
     },
@@ -128,15 +126,14 @@ window.app = {
                 const item = new LogItem({ timestamp: val.timestamp, task: val.task });
                 this.appendToLog(item);
             } catch (e) {
-                console.log(`Could not parse log item ${val}`);
+                logging.warn(`Could not parse log item ${val}`);
             }
         }
         this.storeLog();
     },
 
     storeLog: function () {
-        doLog(this.logData);
-        console.log(this.logData);
+        logging.info(`Storing logged events: ${this.logData}`);
         localStorage.setItem(logKey, JSON.stringify(this.logData));
     }
 
