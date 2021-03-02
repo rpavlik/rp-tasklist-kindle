@@ -5,17 +5,17 @@
 @import '../../../node_modules/purecss/build/menus.css';
 
 $bordersize: 0.1em;
-
+body {
+    box-sizing: border-box;
+}
 .main {
     padding: 1em;
     width: 100%;
-    box-sizing: border-box;
 }
 
 .pure-menu-link {
     margin-top: $bordersize * 2;
     margin-bottom: $bordersize * 2;
-    box-sizing: content-box;
 }
 
 .pure-menu-selected {
