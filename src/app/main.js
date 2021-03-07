@@ -40,7 +40,8 @@ class LogItem {
     }
 
     getTimestampString() {
-        return new Date(this.timestamp).toTimeString();
+        const timestamp = new Date(this.timestamp);
+        return `${timestamp.toLocaleDateString()}  ${timestamp.toTimeString()}`;
     }
 }
 
